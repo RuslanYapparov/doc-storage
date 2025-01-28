@@ -1,8 +1,6 @@
 package ru.yappy.docstorage;
 
-import org.apache.catalina.Context;
-import org.apache.catalina.LifecycleException;
-import org.apache.catalina.Wrapper;
+import org.apache.catalina.*;
 import org.apache.catalina.startup.Tomcat;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -23,7 +21,7 @@ public class DocStorageServer {
 
         DispatcherServlet dispatcherServlet = new DispatcherServlet(applicationContext);
         Wrapper dispatcherWrapper =
-                Tomcat.addServlet(tomcatContext, "dispatcher", dispatcherServlet);
+                Tomcat.addServlet(tomcatContext, "DocStorageDispatcherServlet", dispatcherServlet);
         dispatcherWrapper.addMapping("/");
         dispatcherWrapper.setLoadOnStartup(1);
         tomcat.start();
