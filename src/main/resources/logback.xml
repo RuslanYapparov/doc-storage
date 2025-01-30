@@ -45,4 +45,14 @@
         <appender-ref ref="Console" />
     </logger>
 
+    <logger name="org.hibernate" level="info">
+        <appender-ref ref="RollingFile" />
+        <appender-ref ref="Console" />
+    </logger>
+
+    <logger name="org.hibernate.resource.transaction" level="info">
+        <appender-ref ref="RollingFile" />
+        <appender-ref ref="Console" />
+    </logger>
+
 </configuration>

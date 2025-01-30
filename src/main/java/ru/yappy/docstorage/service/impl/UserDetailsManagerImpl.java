@@ -2,8 +2,8 @@ package ru.yappy.docstorage.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.userdetails.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
 import ru.yappy.docstorage.model.User;
@@ -13,10 +13,13 @@ import ru.yappy.docstorage.out.repo.UserRepository;
 @Service
 public class UserDetailsManagerImpl implements UserDetailsManager {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserDetailsManagerImpl(UserRepository userRepository) {
+    public UserDetailsManagerImpl(UserRepository userRepository,
+                                  PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -32,6 +35,7 @@ public class UserDetailsManagerImpl implements UserDetailsManager {
     public void createUser(UserDetails userDetails) {
         User userData = (User) userDetails;
         log.debug("Начало выполнения операции сохранения данных нового пользователя {}", userData);
+        userData.setPassword(passwordEncoder.encode(userData.getPassword()));
         User newUser = userRepository.save(userData);
         log.debug("Данные нового пользователя сохранены, присвоен идентификатор {}", newUser.getId());
     }
@@ -54,10 +58,6 @@ public class UserDetailsManagerImpl implements UserDetailsManager {
     @Override
     public boolean userExists(String username) {
         return userRepository.existsByUsername(username);
-    }
-
-    private boolean checkExistingByEmail(String email) {
-        return userRepository.existsByEmail(email);
     }
 
 }

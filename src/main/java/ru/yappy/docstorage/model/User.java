@@ -11,21 +11,22 @@ import java.util.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "users")
+@Table(name = "users",
+        indexes = { @Index(name = "idx_users_username", columnList = "username") })
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
-    @Column(name = "username", nullable = false, unique = true)
+    @Column(name = "username", length = 20, nullable = false, unique = true)
     private String username;
     @Column(name = "password", nullable = false)
     private String password;
     @Column(name = "email", nullable = false, unique = true)
     private String email;
-    @Column(name = "first_name")
+    @Column(name = "first_name", length = 50)
     private String firstName;
-    @Column(name = "last_name")
+    @Column(name = "last_name", length = 50)
     private String lastName;
 
     @Override
@@ -53,7 +54,7 @@ public class User implements UserDetails {
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", login='" + username + '\'' +
+                ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +

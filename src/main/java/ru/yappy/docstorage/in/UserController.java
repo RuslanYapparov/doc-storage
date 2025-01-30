@@ -3,6 +3,7 @@ package ru.yappy.docstorage.in;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.web.bind.annotation.*;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ public class UserController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @Secured("ROLE_USER")
     public UserDto findAll() {
         return new UserDto("username", "password", "email", "name", "surname");
     }
