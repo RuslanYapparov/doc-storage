@@ -25,9 +25,10 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests ->
-                        requests.requestMatchers("/v1/users").permitAll()
-                                .requestMatchers("/v1/docs").authenticated()
-                                .requestMatchers("/v1/docs/**").authenticated())
+                        requests.requestMatchers("/*", "/api/v1/users*").permitAll()
+//                                .requestMatchers("/api/v1/users*").permitAll()
+                                .requestMatchers("/api/v1/docs").authenticated()
+                                .requestMatchers("/api/v1/docs/**").authenticated())
                 .formLogin(withDefaults())
                 .httpBasic(httpBasic -> httpBasic
                         .securityContextRepository(

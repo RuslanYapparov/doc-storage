@@ -16,7 +16,7 @@ public class DocStorageServer {
     public static void main(String[] args) throws LifecycleException {
         Tomcat tomcat = new Tomcat();
         tomcat.getConnector().setPort(PORT);
-        Context tomcatContext = tomcat.addContext("/api", new File(".").getAbsolutePath());
+        Context tomcatContext = tomcat.addContext("", new File(".").getAbsolutePath());
 
         AnnotationConfigWebApplicationContext applicationContext =
                 new AnnotationConfigWebApplicationContext();

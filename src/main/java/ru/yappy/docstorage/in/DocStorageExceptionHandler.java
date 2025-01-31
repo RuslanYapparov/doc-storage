@@ -8,11 +8,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.method.annotation.*;
 import ru.yappy.docstorage.exception.ExceptionDto;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
@@ -64,6 +65,20 @@ public class DocStorageExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ExceptionDto handleRuntimeException(RuntimeException exception) {
         return handleException(exception);
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionDto handleMethodValidationException(HandlerMethodValidationException exception) {
+        String errorMessage = exception.getAllErrors().stream()
+                .map(error -> "Значение параметра метода " +
+                        exception.getMethod().getName() + " " + error.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+        return new ExceptionDto(LocalDateTime.now(),
+                exception.getClass().getSimpleName(),
+                errorMessage,
+                getDefaultExceptionDetails(exception.getStackTrace())
+        );
     }
 
     protected ExceptionDto handleException(Exception exception) {

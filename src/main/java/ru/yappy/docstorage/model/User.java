@@ -10,6 +10,8 @@ import java.util.*;
 
 @Getter
 @Setter
+@EqualsAndHashCode
+@ToString
 @Entity
 @Table(name = "users",
         indexes = { @Index(name = "idx_users_username", columnList = "username") })
@@ -20,6 +22,7 @@ public class User implements UserDetails {
     private Long id;
     @Column(name = "username", length = 20, nullable = false, unique = true)
     private String username;
+    @ToString.Exclude
     @Column(name = "password", nullable = false)
     private String password;
     @Column(name = "email", nullable = false, unique = true)
@@ -34,31 +37,31 @@ public class User implements UserDetails {
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof User that)) return false;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(username, that.username) &&
-                Objects.equals(password, that.password) &&
-                Objects.equals(email, that.email) &&
-                Objects.equals(firstName, that.firstName) &&
-                Objects.equals(lastName, that.lastName);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, username, password, email, firstName, lastName);
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", email='" + email + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                '}';
-    }
+//    @Override
+//    public boolean equals(Object o) {
+//        if (!(o instanceof User that)) return false;
+//        return Objects.equals(id, that.id) &&
+//                Objects.equals(username, that.username) &&
+//                Objects.equals(password, that.password) &&
+//                Objects.equals(email, that.email) &&
+//                Objects.equals(firstName, that.firstName) &&
+//                Objects.equals(lastName, that.lastName);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(id, username, password, email, firstName, lastName);
+//    }
+//
+//    @Override
+//    public String toString() {
+//        return "User{" +
+//                "id=" + id +
+//                ", username='" + username + '\'' +
+//                ", email='" + email + '\'' +
+//                ", firstName='" + firstName + '\'' +
+//                ", lastName='" + lastName + '\'' +
+//                '}';
+//    }
 
 }
