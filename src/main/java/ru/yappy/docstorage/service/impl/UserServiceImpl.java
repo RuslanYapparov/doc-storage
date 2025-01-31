@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.yappy.docstorage.model.User;
-import ru.yappy.docstorage.model.dto.UserDto;
+import ru.yappy.docstorage.model.dto.*;
 import ru.yappy.docstorage.out.repo.UserRepository;
 import ru.yappy.docstorage.service.UserService;
 import ru.yappy.docstorage.util.UserMapper;
@@ -35,12 +35,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto saveNewUser(UserDto userDto) {
-        log.debug("Начало выполнения операции сохранения данных нового пользователя {}", userDto);
-        User user = UserMapper.toModel(userDto);
+    public UserDto saveNewUser(NewUserDto newUserDto) {
+        log.debug("Начало выполнения операции сохранения данных нового пользователя {}", newUserDto);
+        User user = UserMapper.toModel(newUserDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user = userRepository.save(user);
-        userDto = UserMapper.toDto(user);
+        UserDto userDto = UserMapper.toDto(user);
         log.debug("Данные нового пользователя сохранены, присвоен идентификатор {}", user.getId());
         return userDto;
     }

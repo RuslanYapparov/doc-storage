@@ -2,11 +2,11 @@ package ru.yappy.docstorage.service;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import ru.yappy.docstorage.model.dto.UserDto;
+import ru.yappy.docstorage.model.dto.*;
 
 public interface UserService extends UserDetailsService {
 
-    UserDto saveNewUser(UserDto userDto);
+    UserDto saveNewUser(NewUserDto newUserDto);
 
     UserDto getUserDtoByUsername(String username);
 

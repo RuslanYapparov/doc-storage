@@ -7,7 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import lombok.extern.slf4j.Slf4j;
 
-import ru.yappy.docstorage.model.dto.UserDto;
+import ru.yappy.docstorage.model.dto.*;
 import ru.yappy.docstorage.service.UserService;
 
 @Slf4j
@@ -23,10 +23,10 @@ public class UserController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserDto saveNewUser(@Valid@RequestBody UserDto userDto) {
-        log.info("Поступил запрос на сохранение данных нового пользователя {}", userDto);
-        userDto = userService.saveNewUser(userDto);
-        log.info("Пользователь {} успешно сохранен", userDto);
+    public UserDto saveNewUser(@Valid@RequestBody NewUserDto newUserDto) {
+        log.info("Поступил запрос на сохранение данных нового пользователя {}", newUserDto);
+        UserDto userDto = userService.saveNewUser(newUserDto);
+        log.info("Пользователь {} успешно сохранен", newUserDto);
         return userDto;
     }
 
