@@ -31,37 +31,12 @@ public class User implements UserDetails {
     private String firstName;
     @Column(name = "last_name", length = 50)
     private String lastName;
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    private List<Document> documents;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
-
-//    @Override
-//    public boolean equals(Object o) {
-//        if (!(o instanceof User that)) return false;
-//        return Objects.equals(id, that.id) &&
-//                Objects.equals(username, that.username) &&
-//                Objects.equals(password, that.password) &&
-//                Objects.equals(email, that.email) &&
-//                Objects.equals(firstName, that.firstName) &&
-//                Objects.equals(lastName, that.lastName);
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(id, username, password, email, firstName, lastName);
-//    }
-//
-//    @Override
-//    public String toString() {
-//        return "User{" +
-//                "id=" + id +
-//                ", username='" + username + '\'' +
-//                ", email='" + email + '\'' +
-//                ", firstName='" + firstName + '\'' +
-//                ", lastName='" + lastName + '\'' +
-//                '}';
-//    }
 
 }
