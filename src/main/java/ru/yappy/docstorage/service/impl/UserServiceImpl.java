@@ -10,7 +10,7 @@ import ru.yappy.docstorage.model.User;
 import ru.yappy.docstorage.model.dto.*;
 import ru.yappy.docstorage.out.repo.UserRepository;
 import ru.yappy.docstorage.service.UserService;
-import ru.yappy.docstorage.util.UserMapper;
+import ru.yappy.docstorage.service.mapper.UserMapper;
 
 @Slf4j
 @Service

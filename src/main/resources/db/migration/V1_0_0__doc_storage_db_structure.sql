@@ -10,20 +10,26 @@ CREATE TABLE users (
 CREATE TABLE documents (
     document_id INT IDENTITY(1,1) PRIMARY KEY,
     title NVARCHAR(255) NOT NULL,
-    created_at DATE NOT NULL,
-    author_id INT NOT NULL,
+    created_at DATE DEFAULT GETDATE(),
+    owner_id INT NOT NULL,
     file_path NVARCHAR(255) NOT NULL UNIQUE,
     description NVARCHAR(1000),
-    FOREIGN KEY (author_id) REFERENCES users(user_id) ON DELETE CASCADE
+    is_shared_for_all BIT DEFAULT 0,
+    access_type_for_all NVARCHAR(10) DEFAULT 'READ_ONLY' CHECK (access_type_for_all IN ('READ_ONLY', 'EDIT', 'REMOVE')),
+    FOREIGN KEY (owner_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 CREATE TABLE users_documents (
-    user_id INT NOT NULL,
     document_id INT NOT NULL,
+    username NVARCHAR(20) NOT NULL,
     access_type NVARCHAR(10) NOT NULL CHECK (access_type IN ('READ_ONLY', 'EDIT', 'REMOVE')),
-    PRIMARY KEY (user_id, document_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (document_id) REFERENCES documents(document_id) ON DELETE NO ACTION
+    PRIMARY KEY (document_id, username),
+    FOREIGN KEY (document_id) REFERENCES documents(document_id) ON DELETE CASCADE,
+    FOREIGN KEY (username) REFERENCES users(username) ON DELETE NO ACTION
 );
 
-CREATE INDEX idx_users_username ON users (username);
+CREATE INDEX idx_users_username ON users(username);
+
+CREATE INDEX idx_documents_title ON documents(title);
+
+CREATE INDEX idx_documents_created_at ON documents(created_at);

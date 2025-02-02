@@ -24,18 +24,20 @@ public class Document {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id")
-    private User author;
+    @JoinColumn(name = "owner_id")
+    private User owner;
     @Column(name = "file_path", nullable = false, unique = true)
     private String filePath;
     @Column(name = "description", length = 1000)
     private String description;
+    @Column(name = "is_shared_for_all")
+    private Boolean isSharedForAll;
+    @Column(name = "access_type_for_all")
+    @Enumerated(EnumType.STRING)
+    private AccessType accessTypeForAll;
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @ManyToMany
-    @JoinTable(name = "users_documents",
-            joinColumns = @JoinColumn(name = "document_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private Set<UserWithAccess> usersWithAccess;
+    @ElementCollection
+    private Set<DocUserAccess> usersWithAccess;
 
 }

@@ -9,7 +9,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.*;
-import ru.yappy.docstorage.exception.ExceptionDto;
+import ru.yappy.docstorage.model.dto.ExceptionDto;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -20,8 +20,14 @@ import java.util.stream.Collectors;
 public class DocStorageExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseStatus(HttpStatus.OK)
     public ExceptionDto handleDataIntegrityViolationException(DataIntegrityViolationException exception) {
+        return handleException(exception);
+    }
+
+    @ExceptionHandler(ObjectNotFoundException.class)
+    @ResponseStatus(HttpStatus.OK)
+    public ExceptionDto handleObjectNotFoundException(ObjectNotFoundException exception) {
         return handleException(exception);
     }
 
@@ -49,21 +55,9 @@ public class DocStorageExceptionHandler {
         return handleException(exception);
     }
 
-    @ExceptionHandler(IllegalStateException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ExceptionDto handleIllegalStateException(IllegalStateException exception) {
-        return handleException(exception);
-    }
-
-    @ExceptionHandler(ObjectNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ExceptionDto handleObjectNotFoundException(ObjectNotFoundException exception) {
-        return handleException(exception);
-    }
-
-    @ExceptionHandler(RuntimeException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ExceptionDto handleRuntimeException(RuntimeException exception) {
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionDto handleIllegalArgumentException(IllegalArgumentException exception) {
         return handleException(exception);
     }
 
@@ -79,6 +73,18 @@ public class DocStorageExceptionHandler {
                 errorMessage,
                 getDefaultExceptionDetails(exception.getStackTrace())
         );
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ExceptionDto handleIllegalStateException(IllegalStateException exception) {
+        return handleException(exception);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ExceptionDto handleRuntimeException(RuntimeException exception) {
+        return handleException(exception);
     }
 
     protected ExceptionDto handleException(Exception exception) {

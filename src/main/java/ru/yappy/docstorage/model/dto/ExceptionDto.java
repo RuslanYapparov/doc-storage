@@ -1,4 +1,4 @@
-package ru.yappy.docstorage.exception;
+package ru.yappy.docstorage.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 

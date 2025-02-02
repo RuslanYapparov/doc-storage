@@ -31,7 +31,9 @@ public class User implements UserDetails {
     private String firstName;
     @Column(name = "last_name", length = 50)
     private String lastName;
-    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<Document> documents;
 
     @Override

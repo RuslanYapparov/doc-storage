@@ -1,4 +1,4 @@
-package ru.yappy.docstorage.util;
+package ru.yappy.docstorage.service.mapper;
 
 import lombok.experimental.UtilityClass;
 import ru.yappy.docstorage.model.User;
