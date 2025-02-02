@@ -34,11 +34,6 @@
         </rollingPolicy>
     </appender>
 
-    <root level="debug">
-        <appender-ref ref="RollingFile" />
-        <appender-ref ref="Console" />
-    </root>
-
     <logger name="org.springframework.beans" level="info">
         <appender-ref ref="RollingFile" />
         <appender-ref ref="Console" />
@@ -53,5 +48,20 @@
         <appender-ref ref="RollingFile" />
         <appender-ref ref="Console" />
     </logger>
+
+    <logger name="org.springframework.transaction.interceptor" level="trace">
+        <appender-ref ref="RollingFile" />
+        <appender-ref ref="Console" />
+    </logger>
+
+    <logger name="org.springframework.orm.jpa.JpaTransactionManager" level="debug">
+        <appender-ref ref="RollingFile" />
+        <appender-ref ref="Console" />
+    </logger>
+
+    <root level="debug">
+        <appender-ref ref="RollingFile" />
+        <appender-ref ref="Console" />
+    </root>
 
 </configuration>

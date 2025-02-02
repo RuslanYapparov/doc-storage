@@ -4,13 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.*;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.yappy.docstorage.model.*;
 import ru.yappy.docstorage.model.dto.DocumentDto;
-import ru.yappy.docstorage.model.paramholder.GetSavedDocsParamHolder;
+import ru.yappy.docstorage.model.paramholder.GetDocsParamHolder;
 import ru.yappy.docstorage.out.repo.DocumentRepository;
 import ru.yappy.docstorage.service.*;
 import ru.yappy.docstorage.service.mapper.DocumentMapper;
@@ -19,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDate;
 import java.util.Set;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -79,16 +79,40 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public DocumentDto[] getSavedDocumentsWithParameters(GetSavedDocsParamHolder paramHolder) {
+    public DocumentDto[] getSavedDocumentsWithParameters(GetDocsParamHolder paramHolder) {
         User user = (User) userService.getAuthenticatedUser();
         log.debug("Начало операции получения сохраненных документов пользователя '{}' с параметрами {}.",
-                user.getUsername(), paramHolder);
-        Pageable page = PageRequest.of((paramHolder.from() / paramHolder.size()), paramHolder.size(),
-                paramHolder.order(), paramHolder.sortBy().getPropertyName());
-        DocumentDto[] docDtos = documentRepository.findAllByOwnerId(user.getId(), page).stream()
-                .map(DocumentMapper::toDto)
-                .toArray(DocumentDto[]::new);
+                user.getUsername(), paramHolder.toStringForSavedDocs());
+        Pageable page = PageRequest.of((paramHolder.from() / paramHolder.size()),
+                paramHolder.size(),
+                paramHolder.order(),
+                paramHolder.sortBy().getPropertyName()
+        );
+        Stream<Document> docStream = documentRepository.findAllByOwnerId(user.getId(), page).stream();
+        DocumentDto[] docDtos = DocumentMapper.toDtoArray(docStream);
         log.debug("Данные о {} сохраненных документах пользователя '{}', начиная с позиции '{}', получены из базы.",
+                docDtos.length, user.getUsername(), paramHolder.from());
+        return docDtos;
+    }
+
+    @Override
+    public DocumentDto[] getAvailableDocumentsWithParameters(GetDocsParamHolder paramHolder) {
+        User user = (User) userService.getAuthenticatedUser();
+        log.debug("Начало операции получения доступных пользователю '{}' документов с параметрами {}.",
+                user.getUsername(), paramHolder);
+        Pageable page = PageRequest.of((paramHolder.from() / paramHolder.size()),
+                paramHolder.size(),
+                paramHolder.order(),
+                paramHolder.sortBy().getPropertyName()
+        );
+        boolean withShared = paramHolder.withSharedForAll();
+        Stream<Document> docStream = paramHolder.withOwned() ?
+                documentRepository.findAllByIsSharedForAllOrOwnerIdOrUsersWithAccessUsername(withShared,
+                        user.getId(), user.getUsername(), page).stream() :
+                documentRepository.findAllByIsSharedForAllOrUsersWithAccessUsername(withShared,
+                        user.getUsername(), page).stream();
+        DocumentDto[] docDtos = DocumentMapper.toDtoArray(docStream);
+        log.debug("Данные о {} доступных пользователю '{}' документах, начиная с позиции '{}', получены из базы.",
                 docDtos.length, user.getUsername(), paramHolder.from());
         return docDtos;
     }

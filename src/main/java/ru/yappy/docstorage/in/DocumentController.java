@@ -46,18 +46,45 @@ public class DocumentController {
             @RequestParam(name = "order", defaultValue = "desc") @NotBlank String order,
             @RequestParam(name = "from", defaultValue = "0") @Min(0) int from,
             @RequestParam(name = "size", defaultValue = "10") @Min(1) int size) {
-        GetSavedDocsParamHolder getSavedDocsParamHolder = new GetSavedDocsParamHolder(
+        GetDocsParamHolder getDocsParamHolder = new GetDocsParamHolder(
                 DocSortType.valueOf(sort.toUpperCase()),
                 Sort.Direction.valueOf(order.toUpperCase()),
                 from,
-                size);
+                size,
+                true,
+                false);
         User user = (User) userService.getAuthenticatedUser();
         log.info("Получен запрос от пользователя '{}' на получение списка из '{}' сохраненных документов, " +
                         "отсортированных по '{}' в '{}' порядке, начиная с позиции '{}'.", user.getUsername(), size,
                 sort, order, from);
-        DocumentDto[] documentDtos = documentService.getSavedDocumentsWithParameters(getSavedDocsParamHolder);
-        log.info("Список из '{}' сохраненных документов в порядке, заданном параметрами запроса, успешно получен.",
-                documentDtos.length);
+        DocumentDto[] documentDtos = documentService.getSavedDocumentsWithParameters(getDocsParamHolder);
+        log.info("Список из {} сохраненных документов пользователя '{}' успешно получен.", documentDtos.length,
+                user.getUsername());
+        return documentDtos;
+    }
+
+    @GetMapping(value = "/available", produces = MediaType.APPLICATION_JSON_VALUE)
+    public DocumentDto[] getPageOfDocumentDtosAvailableForUser(
+            @RequestParam(name = "sortBy", defaultValue = "date") @NotBlank String sort,
+            @RequestParam(name = "order", defaultValue = "desc") @NotBlank String order,
+            @RequestParam(name = "from", defaultValue = "0") @Min(0) int from,
+            @RequestParam(name = "size", defaultValue = "10") @Min(1) int size,
+            @RequestParam(name = "withOwned", defaultValue = "false") boolean withOwned,
+            @RequestParam(name = "withSharedForAll", defaultValue = "false") boolean withSharedForAll) {
+        GetDocsParamHolder getDocsParamHolder = new GetDocsParamHolder(
+                DocSortType.valueOf(sort.toUpperCase()),
+                Sort.Direction.valueOf(order.toUpperCase()),
+                from,
+                size,
+                withOwned,
+                withSharedForAll);
+        User user = (User) userService.getAuthenticatedUser();
+        log.info("Получен запрос от пользователя '{}' на получение списка из '{}' документов, доступных для " +
+                        "загрузки, отсортированных по '{}' в '{}' порядке, начиная с позиции '{}'.",
+                user.getUsername(), size, sort, order, from);
+        DocumentDto[] documentDtos = documentService.getAvailableDocumentsWithParameters(getDocsParamHolder);
+        log.info("Список из {} доступных для загрузки пользователю '{}' документов успешно получен.",
+                documentDtos.length, user.getUsername());
         return documentDtos;
     }
 

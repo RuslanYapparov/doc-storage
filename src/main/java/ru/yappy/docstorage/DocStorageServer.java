@@ -3,17 +3,13 @@ package ru.yappy.docstorage;
 import jakarta.servlet.MultipartConfigElement;
 import org.apache.catalina.*;
 import org.apache.catalina.startup.Tomcat;
-import org.apache.tomcat.util.descriptor.web.FilterDef;
-import org.apache.tomcat.util.descriptor.web.FilterMap;
+import org.apache.tomcat.util.descriptor.web.*;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.DispatcherServlet;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.*;
+import java.nio.file.*;
 
 public class DocStorageServer {
     private static final int PORT = 8080;

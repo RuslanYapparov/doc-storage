@@ -4,8 +4,12 @@ import lombok.experimental.UtilityClass;
 import ru.yappy.docstorage.model.Document;
 import ru.yappy.docstorage.model.dto.*;
 
+import java.nio.file.FileSystems;
+import java.util.stream.Stream;
+
 @UtilityClass
 public class DocumentMapper {
+    private static final String SEPARATOR = FileSystems.getDefault().getSeparator();
 
     public DocumentDto toDto(Document document) {
         DocUserAccessDto[] usersWithAccessDtos = (document.getUsersWithAccess() != null) ?
@@ -15,12 +19,22 @@ public class DocumentMapper {
                 document.getTitle(),
                 document.getDescription(),
                 document.getOwner().getUsername(),
-                document.getFilePath(),
+                getFilenameFromPath(document.getFilePath()),
                 document.getCreatedAt(),
                 document.isSharedForAll(),
                 document.getAccessTypeForAll(),
                 usersWithAccessDtos
         );
+    }
+
+    public DocumentDto[] toDtoArray(Stream<Document> documents) {
+        return documents
+                .map(DocumentMapper::toDto)
+                .toArray(DocumentDto[]::new);
+    }
+
+    private String getFilenameFromPath(String filePath) {
+        return filePath.substring(filePath.lastIndexOf(SEPARATOR) + 1);
     }
 
 }

@@ -3,7 +3,7 @@ package ru.yappy.docstorage.service;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 import ru.yappy.docstorage.model.dto.DocumentDto;
-import ru.yappy.docstorage.model.paramholder.GetSavedDocsParamHolder;
+import ru.yappy.docstorage.model.paramholder.GetDocsParamHolder;
 
 import java.io.*;
 
@@ -13,6 +13,8 @@ public interface DocumentService {
 
     Resource getDocumentResourceById(Long id) throws IOException;
 
-    DocumentDto[] getSavedDocumentsWithParameters(GetSavedDocsParamHolder paramHolder);
+    DocumentDto[] getSavedDocumentsWithParameters(GetDocsParamHolder paramHolder);
+
+    DocumentDto[] getAvailableDocumentsWithParameters(GetDocsParamHolder paramHolder);
 
 }
