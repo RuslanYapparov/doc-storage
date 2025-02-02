@@ -52,11 +52,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean checkUserExistingByUsername(String username) {
-        return userRepository.existsByUsername(username);
-    }
-
-    @Override
     public UserDetails getAuthenticatedUser() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Object principal = securityContext.getAuthentication().getPrincipal();

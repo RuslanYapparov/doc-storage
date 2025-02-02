@@ -2,8 +2,7 @@ package ru.yappy.docstorage.service.mapper;
 
 import lombok.experimental.UtilityClass;
 import ru.yappy.docstorage.model.Document;
-import ru.yappy.docstorage.model.dto.DocUserAccessDto;
-import ru.yappy.docstorage.model.dto.DocumentDto;
+import ru.yappy.docstorage.model.dto.*;
 
 @UtilityClass
 public class DocumentMapper {
@@ -18,7 +17,7 @@ public class DocumentMapper {
                 document.getOwner().getUsername(),
                 document.getFilePath(),
                 document.getCreatedAt(),
-                document.getIsSharedForAll(),
+                document.isSharedForAll(),
                 document.getAccessTypeForAll(),
                 usersWithAccessDtos
         );

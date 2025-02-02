@@ -23,7 +23,7 @@ public class Document {
     private LocalDate createdAt;
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;
     @Column(name = "file_path", nullable = false, unique = true)
@@ -31,13 +31,13 @@ public class Document {
     @Column(name = "description", length = 1000)
     private String description;
     @Column(name = "is_shared_for_all")
-    private Boolean isSharedForAll;
+    private boolean isSharedForAll;
     @Column(name = "access_type_for_all")
     @Enumerated(EnumType.STRING)
     private AccessType accessTypeForAll;
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @ElementCollection
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "docId")
     private Set<DocUserAccess> usersWithAccess;
 
 }

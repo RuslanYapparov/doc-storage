@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.yappy.docstorage.service.FileManager;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.*;
 
 @Slf4j
@@ -55,8 +56,20 @@ public class FileManagerImpl implements FileManager {
         }
         Path filePath = generateFilePath(fileName);
         file.transferTo(filePath);
-        log.debug("Файл документа успешно сохранен в хранилище. Path={}", filePath);
+        log.debug("Файл документа успешно сохранен в хранилище. Path='{}'", filePath);
         return filePath;
+    }
+
+    @Override
+    public InputStream getDocumentInputStream(Path docPath) throws IOException {
+        log.debug("Начало операции получения Input-потока данных файла документа по пути '{}'.", docPath);
+        if (docPath == null || Files.notExists(docPath)) {
+            throw new IllegalStateException("В ходе выполнения операции произошла ошибка: " +
+                    "не был сохранен путь к файлу, либо файл документа не найден.");
+        }
+        InputStream docInputStream = Files.newInputStream(docPath, StandardOpenOption.READ);
+        log.debug("Input-поток данных файла документа успешно получен.");
+        return docInputStream;
     }
 
     private Path generateFilePath(String fileName) {

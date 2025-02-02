@@ -6,4 +6,7 @@ import ru.yappy.docstorage.model.DocUserAccess;
 
 @Repository
 public interface DocUserAccessRepository extends JpaRepository<DocUserAccess, Long> {
+
+    boolean existsByDocIdAndUsername(Long docId, String username);
+
 }

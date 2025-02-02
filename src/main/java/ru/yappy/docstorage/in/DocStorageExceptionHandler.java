@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.*;
 import ru.yappy.docstorage.model.dto.ExceptionDto;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -28,7 +29,12 @@ public class DocStorageExceptionHandler {
     @ExceptionHandler(ObjectNotFoundException.class)
     @ResponseStatus(HttpStatus.OK)
     public ExceptionDto handleObjectNotFoundException(ObjectNotFoundException exception) {
-        return handleException(exception);
+        String ruMessage = String.format("Объект '%s' с идентификатором id=%s не найден в базе данных",
+                exception.getEntityName(), exception.getIdentifier());
+        return new ExceptionDto(LocalDateTime.now(),
+                exception.getClass().getSimpleName(),
+                ruMessage,
+                getDefaultExceptionDetails(exception.getStackTrace()));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -73,6 +79,12 @@ public class DocStorageExceptionHandler {
                 errorMessage,
                 getDefaultExceptionDetails(exception.getStackTrace())
         );
+    }
+
+    @ExceptionHandler(IOException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ExceptionDto handleIOException(IOException exception) {
+        return handleException(exception);
     }
 
     @ExceptionHandler(IllegalStateException.class)

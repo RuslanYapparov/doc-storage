@@ -14,8 +14,8 @@ CREATE TABLE documents (
     owner_id INT NOT NULL,
     file_path NVARCHAR(255) NOT NULL UNIQUE,
     description NVARCHAR(1000),
-    is_shared_for_all BIT DEFAULT 0,
-    access_type_for_all NVARCHAR(10) DEFAULT 'READ_ONLY' CHECK (access_type_for_all IN ('READ_ONLY', 'EDIT', 'REMOVE')),
+    is_shared_for_all BIT NOT NULL,
+    access_type_for_all NVARCHAR(10) CHECK (access_type_for_all IN ('READ_ONLY', 'EDIT', 'REMOVE')),
     FOREIGN KEY (owner_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 

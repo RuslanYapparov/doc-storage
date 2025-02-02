@@ -10,8 +10,6 @@ public interface UserService extends UserDetailsService {
 
     UserDto getUserDtoByUsername(String username);
 
-    boolean checkUserExistingByUsername(String username);
-
     UserDetails getAuthenticatedUser();
 
 }
