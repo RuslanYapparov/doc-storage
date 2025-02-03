@@ -11,8 +11,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 
     Page<Document> findAllByOwnerId(Long ownerId, Pageable page);
 
-    Page<Document> findAllByIsSharedForAllOrOwnerIdOrUsersWithAccessUsername(boolean sharedForAllIncluded,
-                                                                             Long ownerId,
+    Page<Document> findAllByOwnerIdOrUsersWithAccessUsername(Long ownerId,
                                                                              String username,
                                                                              Pageable page);
 

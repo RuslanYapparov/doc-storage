@@ -14,9 +14,11 @@ CREATE TABLE documents (
     owner_id INT NOT NULL,
     file_path NVARCHAR(255) NOT NULL UNIQUE,
     description NVARCHAR(1000),
-    is_shared_for_all BIT NOT NULL,
-    access_type_for_all NVARCHAR(10) CHECK (access_type_for_all IN ('READ_ONLY', 'EDIT', 'REMOVE')),
-    FOREIGN KEY (owner_id) REFERENCES users(user_id) ON DELETE CASCADE
+    common_access_type NVARCHAR(10) CHECK (common_access_type IN ('READ_ONLY', 'EDIT', 'REMOVE')),
+    updated_by NVARCHAR(20),
+    updated_at DATETIME,
+    FOREIGN KEY (owner_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (updated_by) REFERENCES users(username) ON DELETE NO ACTION
 );
 
 CREATE TABLE users_documents (

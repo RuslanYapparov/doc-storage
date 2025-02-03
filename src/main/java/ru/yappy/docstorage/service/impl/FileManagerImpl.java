@@ -71,6 +71,27 @@ public class FileManagerImpl implements FileManager {
         return docInputStream;
     }
 
+    @Override
+    public void updateFile(MultipartFile file, Path docPath) throws IOException {
+        String fileName = file.getOriginalFilename();
+        if (fileName == null || fileName.isBlank() || !docPath.toString().contains(fileName)) {
+            throw new IllegalArgumentException("Невозможно обновить файл документа. Невозможно прочитать название " +
+                    "загруженного файла либо название файла не соответствует названию файла в хранилище.");
+        }
+        file.transferTo(docPath);
+        log.debug("Файл документа успешно обновлен в хранилище. Path='{}'", docPath);
+    }
+
+    @Override
+    public void deleteFile(Path docPath) throws IOException {
+        if (docPath == null || docPath.toString().isBlank() || Files.notExists(docPath)) {
+            throw new IllegalStateException("При удалении файла документа произошла ошибка: " +
+                    "не был сохранен путь к файлу, либо файл документа не найден.");
+        }
+        Files.delete(docPath);
+        log.debug("Файл документа успешно удален из хранилища.");
+    }
+
     private Path generateFilePath(String fileName) {
         Path filePath;
         char firstChar = Character.toUpperCase(fileName.charAt(0));

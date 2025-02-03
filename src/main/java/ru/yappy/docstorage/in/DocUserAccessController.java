@@ -23,7 +23,7 @@ public class DocUserAccessController {
         this.userService = userService;
     }
 
-    @PostMapping(produces = "application/json")
+    @PutMapping(produces = "application/json")
     public DocUserAccessDto saveDocUserAccess(@RequestBody @Valid DocUserAccessDto docUserAccessDto) {
         User user = (User) userService.getAuthenticatedUser();
         log.info("Поступил запрос от пользователя '{}' на предоставление доступа к документу {}.", user.getUsername(),

@@ -33,8 +33,10 @@ public class DocumentController {
     public DocumentDto uploadNewDocument(@RequestParam("file") MultipartFile file,
                                          @RequestParam("title") @NotBlank String title,
                                          @RequestParam("description") @NotBlank String description) throws IOException {
+        User user = (User) userService.getAuthenticatedUser();
         String subDescription = (description.length() < 20) ? description : description.substring(0, 20) + "(...)";
-        log.info("Получен запрос на сохранение документа с названием '{}' и описанием '{}'", title, subDescription);
+        log.info("Получен запрос от пользователя '{}' на сохранение документа с названием '{}' и описанием '{}'",
+                user.getUsername(), title, subDescription);
         DocumentDto documentDto = documentService.saveNewDocument(file, title, description);
         log.info("Данные о документе и файл успешно сохранены.");
         return documentDto;
@@ -96,6 +98,23 @@ public class DocumentController {
         return docResource;
     }
 
+    @PatchMapping(value = "/updating/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public DocumentDto updateDocument(@PathVariable(name = "id") @Min(1) Long id,
+                                      @RequestParam(name = "file", required = false) MultipartFile file,
+                                      @RequestParam(name = "title", required = false) String title,
+                                      @RequestParam(name = "description", required = false) String description)
+            throws IOException {
+        User user = (User) userService.getAuthenticatedUser();
+        String subDescription = (description.length() < 20) ? description : description.substring(0, 20) + "(...)";
+        log.info("Получен запрос от пользователя '{}' на обновление документа с id={}. " +
+                        "Переданные параметры: название '{}', описание '{}', наличие файла '{}'",
+                user.getUsername(), id, title, subDescription, file != null);
+        DocumentDto documentDto = documentService.updateEditedDocument(file, id, title, description);
+        log.info("Данные о документе и файл успешно обновлены.");
+        return documentDto;
+    }
+
     @PatchMapping(value = "/share/open/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public DocumentDto shareDocumentForAll(@PathVariable("id") @Min(1) Long id,
                                            @RequestParam("accessType") String accessString) {
@@ -112,6 +131,15 @@ public class DocumentController {
         DocumentDto documentDto = documentService.closeSharedAccessToDocument(id);
         log.info("Общий доступ к документу с id={} успешно закрыт.", id);
         return documentDto;
+    }
+
+    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public DocumentDto deleteDocument(@PathVariable("id") @Min(1) Long id) throws IOException {
+        User user = (User) userService.getAuthenticatedUser();
+        log.info("Получен запрос от пользователя '{}' на удаление документа с id={}", user.getUsername(), id);
+        DocumentDto docDto = documentService.deleteDocument(id);
+        log.info("Документ с id={} успешно удален.", id);
+        return docDto;
     }
 
 }

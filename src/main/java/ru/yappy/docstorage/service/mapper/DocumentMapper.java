@@ -21,8 +21,9 @@ public class DocumentMapper {
                 document.getOwner().getUsername(),
                 getFilenameFromPath(document.getFilePath()),
                 document.getCreatedAt(),
-                document.isSharedForAll(),
-                document.getAccessTypeForAll(),
+                document.getCommonAccessType(),
+                document.getUpdatedBy(),
+                document.getUpdatedAt(),
                 usersWithAccessDtos
         );
     }

@@ -3,7 +3,7 @@ package ru.yappy.docstorage.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.*;
 import java.util.Set;
 
 @Setter
@@ -30,11 +30,13 @@ public class Document {
     private String filePath;
     @Column(name = "description", length = 1000)
     private String description;
-    @Column(name = "is_shared_for_all")
-    private boolean isSharedForAll;
-    @Column(name = "access_type_for_all")
+    @Column(name = "common_access_type")
     @Enumerated(EnumType.STRING)
-    private AccessType accessTypeForAll;
+    private AccessType commonAccessType;
+    @Column(name = "updated_by")
+    private String updatedBy;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "docId")

@@ -16,7 +16,7 @@ import ru.yappy.docstorage.service.mapper.DocumentMapper;
 
 import java.io.IOException;
 import java.nio.file.*;
-import java.time.LocalDate;
+import java.time.*;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -65,13 +65,7 @@ public class DocumentServiceImpl implements DocumentService {
     public Resource getDocumentResourceById(Long id) throws IOException {
         User user = (User) userService.getAuthenticatedUser();
         log.debug("Начало операции получения файла документа из хранилища для пользователя '{}'", user.getUsername());
-        Document document = documentRepository.findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException(id, "Document"));
-        if (!document.isSharedForAll() ||
-                !docUserAccessService.checkUserAccessToDocument(document.getId(), user.getUsername())) {
-            throw new IllegalArgumentException(String.format("Документ с id=%d не доступен для пользователя '%s'",
-                    id, user.getUsername()));
-        }
+        Document document = getCheckedDocumentForOperations(AccessType.READ_ONLY, id, user.getUsername());
         Path docPath = Paths.get(document.getFilePath());
         InputStreamResource docResource = new InputStreamResource(fileManager.getDocumentInputStream(docPath));
         log.debug("Данные о документе найдены в базе, файл документа подготовлен для отправки.");
@@ -107,7 +101,7 @@ public class DocumentServiceImpl implements DocumentService {
         );
         boolean withShared = paramHolder.withSharedForAll();
         Stream<Document> docStream = paramHolder.withOwned() ?
-                documentRepository.findAllByIsSharedForAllOrOwnerIdOrUsersWithAccessUsername(withShared,
+                documentRepository.findAllByOwnerIdOrUsersWithAccessUsername(
                         user.getId(), user.getUsername(), page).stream() :
                 documentRepository.findAllByUsersWithAccessUsername(user.getUsername(), page).stream();
         DocumentDto[] docDtos = DocumentMapper.toDtoArray(docStream);
@@ -129,8 +123,20 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public DocumentDto updateEditedDocument(MultipartFile file, Long docId, String title, String description)
             throws IOException {
-
-        return null;
+        log.debug("Начало операции обновления данных о документе в базе и файла документа в хранилище.");
+        User user = (User) userService.getAuthenticatedUser();
+        Document document = getCheckedDocumentForOperations(AccessType.EDIT, docId, user.getUsername());
+        if (file != null) {
+            fileManager.updateFile(file, Paths.get(document.getFilePath()));
+        }
+        document.setTitle(title == null ? document.getTitle() : title);
+        document.setDescription(description == null ? document.getDescription() : description);
+        document.setUpdatedBy(user.getUsername());
+        document.setUpdatedAt(LocalDateTime.now());
+        document = documentRepository.save(document);
+        DocumentDto documentDto = DocumentMapper.toDto(document);
+        log.debug("Данные о документе успешно обновлены в базе, а файл документа в хранилище.");
+        return documentDto;
     }
 
     @Override
@@ -139,12 +145,11 @@ public class DocumentServiceImpl implements DocumentService {
                 "пользователей.", accessType, docId);
         User user = (User) userService.getAuthenticatedUser();
         Document document = getCheckedForOwnerDocument(docId, user.getUsername());
-        if (document.isSharedForAll() && document.getAccessTypeForAll().equals(accessType)) {
+        if (accessType.equals(document.getCommonAccessType())) {
             throw new IllegalArgumentException(String.format("Документ с id='%d' уже открыт с доступом '%s' " +
-                    "для всех пользователей.", docId, document.getAccessTypeForAll()));
+                    "для всех пользователей.", docId, document.getCommonAccessType()));
         }
-        document.setSharedForAll(true);
-        document.setAccessTypeForAll(accessType);
+        document.setCommonAccessType(accessType);
         document = documentRepository.save(document);
         DocumentDto documentDto = DocumentMapper.toDto(document);
         log.debug("Документ с id={} теперь открыт с доступом '{}' для всех пользователей.", docId, accessType);
@@ -157,12 +162,11 @@ public class DocumentServiceImpl implements DocumentService {
                 "пользователей.", docId);
         User user = (User) userService.getAuthenticatedUser();
         Document document = getCheckedForOwnerDocument(docId, user.getUsername());
-        if (!document.isSharedForAll()) {
+        if (document.getCommonAccessType() == null) {
             throw new IllegalArgumentException(String.format("Документ с id='%d' уже закрыт для всех пользователей.",
                     docId));
         }
-        document.setSharedForAll(false);
-        document.setAccessTypeForAll(null);
+        document.setCommonAccessType(null);
         document = documentRepository.save(document);
         DocumentDto documentDto = DocumentMapper.toDto(document);
         log.debug("Документ с id={} теперь не имеет общего доступа для всех пользователей.", docId);
@@ -171,7 +175,15 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public DocumentDto deleteDocument(Long docId) throws IOException {
-        return null;
+        log.debug("Начало операции удаления данных о документе в базе и файла документа в хранилище.");
+        User user = (User) userService.getAuthenticatedUser();
+        Document document = getCheckedDocumentForOperations(AccessType.REMOVE, docId, user.getUsername());
+        fileManager.deleteFile(Paths.get(document.getFilePath()));
+        documentRepository.deleteById(docId);
+        document.setDescription("REMOVED");
+        DocumentDto documentDto = DocumentMapper.toDto(document);
+        log.debug("Данные о документе удалены из базы, а файл документа в хранилище.");
+        return documentDto;
     }
 
     private Document getCheckedForOwnerDocument(Long docId, String username) {
@@ -182,6 +194,60 @@ public class DocumentServiceImpl implements DocumentService {
                     "документа с id='%d' и не может управлять доступом к нему.", username, docId));
         }
         return document;
+    }
+
+    private Document getCheckedDocumentForOperations(AccessType operationType, Long docId, String username) {
+        Document document = documentRepository.findById(docId)
+                .orElseThrow(() -> new ObjectNotFoundException(docId, "Document"));
+        boolean haveNotGrantedAccessTypeForOperation = checkUserHaveNotGrantedAccessToDocument(
+                document.getUsersWithAccess().stream(), operationType, docId, username);
+        switch (operationType) {
+            case READ_ONLY -> {
+                if (document.getCommonAccessType() == null &&
+                        haveNotGrantedAccessTypeForOperation) {
+                throw new IllegalArgumentException(String.format("Документ с id=%d не доступен для скачивания " +
+                                "пользователю '%s'", document.getId(), username));
+                }
+            }
+            case EDIT -> {
+                if ((document.getCommonAccessType() == null ||
+                        AccessType.READ_ONLY.equals(document.getCommonAccessType())) &&
+                        haveNotGrantedAccessTypeForOperation) {
+                    throw new IllegalArgumentException(String.format("Документ с id=%d не доступен для обновления " +
+                            "пользователю '%s'", document.getId(), username));
+                }
+            }
+            case REMOVE -> {
+                if (!AccessType.REMOVE.equals(document.getCommonAccessType()) &&
+                        haveNotGrantedAccessTypeForOperation) {
+                    throw new IllegalArgumentException(String.format("Документ с id=%d не доступен для удаления " +
+                            "пользователю '%s'", document.getId(), username));
+                }
+            }
+        }
+        return document;
+    }
+
+    private boolean checkUserHaveNotGrantedAccessToDocument(Stream<DocUserAccess> accesses, AccessType operationType,
+                                                            Long docId, String username) {
+        switch (operationType) {
+            case READ_ONLY -> {
+                return accesses.noneMatch(access -> access.getUsername().equals(username) &&
+                                access.getDocId().equals(docId));
+            }
+            case EDIT -> {
+                return accesses.noneMatch(access -> access.getUsername().equals(username) &&
+                        access.getDocId().equals(docId) &&
+                        !AccessType.READ_ONLY.equals(access.getAccessType()));
+            }
+            case REMOVE -> {
+                return accesses.noneMatch(access -> access.getUsername().equals(username) &&
+                        access.getDocId().equals(docId) &&
+                        AccessType.REMOVE.equals(access.getAccessType()));
+            }
+            case null, default ->
+                    throw new IllegalStateException(String.format("Неизвестный тип операции: %s", operationType));
+        }
     }
 
 }

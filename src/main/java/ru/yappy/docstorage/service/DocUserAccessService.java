@@ -9,6 +9,8 @@ public interface DocUserAccessService {
 
     boolean checkUserAccessToDocument(Long docId, String username);
 
+    boolean checkUserAccessToDocument(Long docId, String username, AccessType accessType);
+
     DocUserAccessDto grantAccessToDocumentForUser(DocUserAccessDto docUserAccessDto);
 
     void revokeAccessToDocumentForUser(Long docId, String usernameOfRevoked);

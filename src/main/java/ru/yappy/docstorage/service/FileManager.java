@@ -11,4 +11,8 @@ public interface FileManager {
 
     InputStream getDocumentInputStream(Path docPath) throws IOException;
 
+    void updateFile(MultipartFile file, Path docPath) throws IOException;
+
+    void deleteFile(Path docPath) throws IOException;
+
 }
