@@ -134,13 +134,54 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public DocumentDto shareDocumentForAllUsers(Long docId, AccessType accessType) {
-        return null;
+    public DocumentDto shareDocumentForAllUsersWithAccessType(Long docId, AccessType accessType) {
+        log.debug("Начало выполнения операции открытия общего доступа с типом '{}' к документу с id={} для всех " +
+                "пользователей.", accessType, docId);
+        User user = (User) userService.getAuthenticatedUser();
+        Document document = getCheckedForOwnerDocument(docId, user.getUsername());
+        if (document.isSharedForAll() && document.getAccessTypeForAll().equals(accessType)) {
+            throw new IllegalArgumentException(String.format("Документ с id='%d' уже открыт с доступом '%s' " +
+                    "для всех пользователей.", docId, document.getAccessTypeForAll()));
+        }
+        document.setSharedForAll(true);
+        document.setAccessTypeForAll(accessType);
+        document = documentRepository.save(document);
+        DocumentDto documentDto = DocumentMapper.toDto(document);
+        log.debug("Документ с id={} теперь открыт с доступом '{}' для всех пользователей.", docId, accessType);
+        return documentDto;
+    }
+
+    @Override
+    public DocumentDto closeSharedAccessToDocument(Long docId) {
+        log.debug("Начало выполнения операции закрытия общего доступа к документу с id={} для всех " +
+                "пользователей.", docId);
+        User user = (User) userService.getAuthenticatedUser();
+        Document document = getCheckedForOwnerDocument(docId, user.getUsername());
+        if (!document.isSharedForAll()) {
+            throw new IllegalArgumentException(String.format("Документ с id='%d' уже закрыт для всех пользователей.",
+                    docId));
+        }
+        document.setSharedForAll(false);
+        document.setAccessTypeForAll(null);
+        document = documentRepository.save(document);
+        DocumentDto documentDto = DocumentMapper.toDto(document);
+        log.debug("Документ с id={} теперь не имеет общего доступа для всех пользователей.", docId);
+        return documentDto;
     }
 
     @Override
     public DocumentDto deleteDocument(Long docId) throws IOException {
         return null;
+    }
+
+    private Document getCheckedForOwnerDocument(Long docId, String username) {
+        Document document = documentRepository.findById(docId)
+                .orElseThrow(() -> new ObjectNotFoundException(docId, "Document"));
+        if (!username.equals(document.getOwner().getUsername())) {
+            throw new IllegalArgumentException(String.format("Пользователь '%s' не является обладателем " +
+                    "документа с id='%d' и не может управлять доступом к нему.", username, docId));
+        }
+        return document;
     }
 
 }

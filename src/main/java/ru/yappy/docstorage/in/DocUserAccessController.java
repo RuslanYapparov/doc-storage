@@ -12,7 +12,6 @@ import ru.yappy.docstorage.service.*;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/accesses")
-@Valid
 public class DocUserAccessController {
     private final DocUserAccessService docUserAccessService;
     private final UserService userService;
@@ -25,7 +24,7 @@ public class DocUserAccessController {
     }
 
     @PostMapping(produces = "application/json")
-    public DocUserAccessDto saveDocUserAccess(@RequestBody DocUserAccessDto docUserAccessDto) {
+    public DocUserAccessDto saveDocUserAccess(@RequestBody @Valid DocUserAccessDto docUserAccessDto) {
         User user = (User) userService.getAuthenticatedUser();
         log.info("Поступил запрос от пользователя '{}' на предоставление доступа к документу {}.", user.getUsername(),
                 docUserAccessDto);
@@ -36,8 +35,8 @@ public class DocUserAccessController {
     }
 
     @DeleteMapping
-    public void deleteDocUserAccess(@RequestParam(name = "docId") @Min(1) Long docId,
-                                    @RequestParam(name = "username") @NotBlank String username) {
+    public void deleteDocUserAccess(@RequestParam(name = "docId") @Valid @Min(1) Long docId,
+                                    @RequestParam(name = "username") @Valid @NotBlank String username) {
         User user = (User) userService.getAuthenticatedUser();
         log.info("Поступил запрос от пользователя '{}' на отзыв доступа к документу с id={}  пользователя '{}'.",
                 user.getUsername(), docId, username);

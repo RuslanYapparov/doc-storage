@@ -8,7 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.yappy.docstorage.model.User;
+import ru.yappy.docstorage.model.*;
 import ru.yappy.docstorage.model.dto.DocumentDto;
 import ru.yappy.docstorage.model.paramholder.*;
 import ru.yappy.docstorage.service.*;
@@ -94,6 +94,24 @@ public class DocumentController {
         Resource docResource = documentService.getDocumentResourceById(id);
         log.info("Файл документа успешно загружен.");
         return docResource;
+    }
+
+    @PatchMapping(value = "/share/open/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public DocumentDto shareDocumentForAll(@PathVariable("id") @Min(1) Long id,
+                                           @RequestParam("accessType") String accessString) {
+        AccessType accessType = AccessType.valueOf(accessString.toUpperCase());
+        log.info("Получен запрос на открытие '{}' общего доступа к документу с id={}", accessType, id);
+        DocumentDto documentDto = documentService.shareDocumentForAllUsersWithAccessType(id, accessType);
+        log.info("Общий доступ с типом '{}' к документу с id={} успешно открыт.", accessType, id);
+        return documentDto;
+    }
+
+    @PatchMapping(value = "/share/close/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public DocumentDto closeSharedAccessToDocument(@PathVariable("id") @Min(1) Long id) {
+        log.info("Получен запрос на закрытие общего доступа к документу с id={}", id);
+        DocumentDto documentDto = documentService.closeSharedAccessToDocument(id);
+        log.info("Общий доступ к документу с id={} успешно закрыт.", id);
+        return documentDto;
     }
 
 }

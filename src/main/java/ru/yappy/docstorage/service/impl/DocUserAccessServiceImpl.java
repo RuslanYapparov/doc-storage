@@ -3,7 +3,6 @@ package ru.yappy.docstorage.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.yappy.docstorage.model.*;
 import ru.yappy.docstorage.model.dto.DocUserAccessDto;
 import ru.yappy.docstorage.out.repo.*;
@@ -50,9 +49,10 @@ public class DocUserAccessServiceImpl implements DocUserAccessService {
         log.debug("Начало выполнения операции сохранения новых пользовательских прав '{}' на документ с id='{}' " +
                 "для пользователя '{}'.", dto.accessType(), dto.docId(), dto.username());
         User owner = (User) userService.getAuthenticatedUser();
-        if (!owner.getUsername().equals(documentRepository.findOwnerUsernameByDocumentId(dto.docId()))) {
-            throw new IllegalArgumentException(String.format("Пользователь '%s' не является обладателем " +
-                    "документа с id='%d' и не может предоставить доступ другим.", owner.getUsername(), dto.docId()));
+        checkDocumentForOwner(dto.docId(), owner.getUsername());
+        if (owner.getUsername().equals(dto.username())) {
+            throw new IllegalArgumentException("Обладатель документа имеет полный контроль над ним и не " +
+                    "может это изменить.");
         }
         DocUserAccessDto docUserAccessDto = DocUserAccessMapper.toDto(
                 docUserAccessRepository.save(new DocUserAccess(dto.docId(), dto.username(), dto.accessType())));
@@ -66,13 +66,21 @@ public class DocUserAccessServiceImpl implements DocUserAccessService {
         log.debug("Начало выполнения операции отзыва права доступа к документу с id='{}' пользователю '{}'.",
                 docId, usernameOfRevoked);
         User owner = (User) userService.getAuthenticatedUser();
-        if (!owner.getUsername().equals(documentRepository.findOwnerUsernameByDocumentId(docId))) {
-            throw new IllegalArgumentException(String.format("Пользователь '%s' не является обладателем " +
-                    "документа с id='%d' и не может отозвать доступ.", owner.getUsername(), docId));
+        checkDocumentForOwner(docId, owner.getUsername());
+        if (owner.getUsername().equals(usernameOfRevoked)) {
+            throw new IllegalArgumentException("Обладатель документа не может отозвать доступ к " +
+                    "нему у самого себя.");
         }
         docUserAccessRepository.deleteByDocIdAndUsername(docId, usernameOfRevoked);
         log.debug("Пользователь '{}' отозвал доступ пользователя '{}' к документу с id='{}'.",
                 owner.getUsername(), usernameOfRevoked, docId);
+    }
+
+    private void checkDocumentForOwner(Long docId, String username) {
+        if (!username.equals(documentRepository.findOwnerUsernameByDocumentId(docId))) {
+            throw new IllegalArgumentException(String.format("Пользователь '%s' не является обладателем " +
+                    "документа с id='%d' и не может управлять доступом к нему.", username, docId));
+        }
     }
 
 }

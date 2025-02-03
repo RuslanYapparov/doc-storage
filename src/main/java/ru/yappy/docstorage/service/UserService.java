@@ -1,7 +1,6 @@
 package ru.yappy.docstorage.service;
 
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.*;
 import ru.yappy.docstorage.model.dto.*;
 
 public interface UserService extends UserDetailsService {
