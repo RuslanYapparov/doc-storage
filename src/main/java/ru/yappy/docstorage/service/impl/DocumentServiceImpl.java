@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.yappy.docstorage.model.*;
 import ru.yappy.docstorage.model.dto.DocumentDto;
-import ru.yappy.docstorage.model.paramholder.GetDocsParamHolder;
+import ru.yappy.docstorage.model.paramholder.*;
 import ru.yappy.docstorage.out.repo.DocumentRepository;
 import ru.yappy.docstorage.service.*;
 import ru.yappy.docstorage.service.mapper.DocumentMapper;
@@ -54,8 +54,8 @@ public class DocumentServiceImpl implements DocumentService {
         document = documentRepository.save(document);
 
         document.setFilePath(filePath.getFileName().toString());
-        document.setUsersWithAccess(Set.of(docUserAccessService.grantAccessToDocumentForUser(document.getId(),
-                owner.getUsername(), AccessType.REMOVE)));
+        document.setUsersWithAccess(Set.of(docUserAccessService.saveAccessToDocumentForOwner(document.getId(),
+                owner.getUsername())));
         DocumentDto documentDto = DocumentMapper.toDto(document);
         log.debug("Данные о документе успешно сохранены в базе, а файл документа в хранилище.");
         return documentDto;
@@ -109,12 +109,38 @@ public class DocumentServiceImpl implements DocumentService {
         Stream<Document> docStream = paramHolder.withOwned() ?
                 documentRepository.findAllByIsSharedForAllOrOwnerIdOrUsersWithAccessUsername(withShared,
                         user.getId(), user.getUsername(), page).stream() :
-                documentRepository.findAllByIsSharedForAllOrUsersWithAccessUsername(withShared,
-                        user.getUsername(), page).stream();
+                documentRepository.findAllByUsersWithAccessUsername(user.getUsername(), page).stream();
         DocumentDto[] docDtos = DocumentMapper.toDtoArray(docStream);
         log.debug("Данные о {} доступных пользователю '{}' документах, начиная с позиции '{}', получены из базы.",
                 docDtos.length, user.getUsername(), paramHolder.from());
         return docDtos;
+    }
+
+    @Override
+    public DocumentDto[] searchInSavedDocumentsWithParameters(SearchInDocsParamHolder paramHolder) {
+        return new DocumentDto[0];
+    }
+
+    @Override
+    public DocumentDto[] searchInAvailableDocumentsWithParameters(SearchInDocsParamHolder paramHolder) {
+        return new DocumentDto[0];
+    }
+
+    @Override
+    public DocumentDto updateEditedDocument(MultipartFile file, Long docId, String title, String description)
+            throws IOException {
+
+        return null;
+    }
+
+    @Override
+    public DocumentDto shareDocumentForAllUsers(Long docId, AccessType accessType) {
+        return null;
+    }
+
+    @Override
+    public DocumentDto deleteDocument(Long docId) throws IOException {
+        return null;
     }
 
 }

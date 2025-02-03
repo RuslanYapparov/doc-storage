@@ -1,11 +1,16 @@
 package ru.yappy.docstorage.service;
 
 import ru.yappy.docstorage.model.*;
+import ru.yappy.docstorage.model.dto.DocUserAccessDto;
 
 public interface DocUserAccessService {
 
-    DocUserAccess grantAccessToDocumentForUser(Long docId, String usernameOfRecipient, AccessType accessType);
+    DocUserAccess saveAccessToDocumentForOwner(Long docId, String usernameOfRecipient);
 
     boolean checkUserAccessToDocument(Long docId, String username);
+
+    DocUserAccessDto grantAccessToDocumentForUser(DocUserAccessDto docUserAccessDto);
+
+    void revokeAccessToDocumentForUser(Long docId, String usernameOfRevoked);
 
 }
