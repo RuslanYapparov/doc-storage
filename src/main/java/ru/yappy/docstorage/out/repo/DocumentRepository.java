@@ -9,13 +9,44 @@ import ru.yappy.docstorage.model.Document;
 @Repository
 public interface DocumentRepository extends JpaRepository<Document, Long> {
 
+    @EntityGraph(value = "Document.includeUsersWithAccess", type = EntityGraph.EntityGraphType.LOAD)
     Page<Document> findAllByOwnerId(Long ownerId, Pageable page);
 
-    Page<Document> findAllByOwnerIdOrUsersWithAccessUsername(Long ownerId,
-                                                                             String username,
-                                                                             Pageable page);
+    @Query("""
+           SELECT doc FROM Document doc
+           JOIN FETCH doc.owner AS u
+           JOIN doc.usersWithAccess AS dua
+           WHERE doc.commonAccessType IS NOT NULL OR dua.username = :username
+           """)
+    Page<Document> findAllAvailableByUsername(@Param("username") String username, Pageable page);
 
-    Page<Document> findAllByUsersWithAccessUsername(String username, Pageable page);
+    @Query("""
+           SELECT doc FROM Document doc
+           JOIN FETCH doc.owner AS u
+           JOIN doc.usersWithAccess AS dua
+           WHERE dua.username = :username
+           """)
+    Page<Document> findAllAvailableWithoutSharedByUsername(@Param("username") String username, Pageable page);
+
+    @Query("""
+           SELECT doc FROM Document doc
+           JOIN FETCH doc.owner AS u
+           JOIN doc.usersWithAccess AS dua
+           WHERE (doc.commonAccessType IS NOT NULL OR dua.username = :username) AND doc.owner.id <> :ownerId
+           """)
+    Page<Document> findAllAvailableWithoutOwnedByUsername(@Param("username") String username,
+                                                          @Param("ownerId") Long ownerId,
+                                                          Pageable page);
+
+    @Query("""
+           SELECT doc FROM Document doc
+           JOIN FETCH doc.owner AS u
+           JOIN doc.usersWithAccess AS dua
+           WHERE dua.username = :username AND doc.owner.id <> :ownerId
+           """)
+    Page<Document> findAllAvailableWithoutOwnedAndSharedByUsername(@Param("username") String username,
+                                                                   @Param("ownerId") Long ownerId,
+                                                                   Pageable page);
 
     @Query("""
            SELECT doc.owner.username FROM Document doc

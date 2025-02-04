@@ -99,12 +99,19 @@ public class DocumentServiceImpl implements DocumentService {
                 paramHolder.order(),
                 paramHolder.sortBy().getPropertyName()
         );
-        boolean withShared = paramHolder.withSharedForAll();
-        Stream<Document> docStream = paramHolder.withOwned() ?
-                documentRepository.findAllByOwnerIdOrUsersWithAccessUsername(
-                        user.getId(), user.getUsername(), page).stream() :
-                documentRepository.findAllByUsersWithAccessUsername(user.getUsername(), page).stream();
-        DocumentDto[] docDtos = DocumentMapper.toDtoArray(docStream);
+        Page<Document> documents;
+        Long userId = user.getId();
+        String username = user.getUsername();
+        if (paramHolder.withOwned()) {
+            documents = paramHolder.withSharedForAll() ?
+                    documentRepository.findAllAvailableByUsername(username, page) :
+                    documentRepository.findAllAvailableWithoutSharedByUsername(username, page);
+        } else {
+            documents = paramHolder.withSharedForAll() ?
+                    documentRepository.findAllAvailableWithoutOwnedByUsername(username, userId, page) :
+                    documentRepository.findAllAvailableWithoutOwnedAndSharedByUsername(username, userId, page);
+        }
+        DocumentDto[] docDtos = DocumentMapper.toDtoArray(documents.stream());
         log.debug("Данные о {} доступных пользователю '{}' документах, начиная с позиции '{}', получены из базы.",
                 docDtos.length, user.getUsername(), paramHolder.from());
         return docDtos;
@@ -140,7 +147,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public DocumentDto shareDocumentForAllUsersWithAccessType(Long docId, AccessType accessType) {
+    public DocumentDto shareDocumentForAllUsers(Long docId, AccessType accessType) {
         log.debug("Начало выполнения операции открытия общего доступа с типом '{}' к документу с id={} для всех " +
                 "пользователей.", accessType, docId);
         User user = (User) userService.getAuthenticatedUser();

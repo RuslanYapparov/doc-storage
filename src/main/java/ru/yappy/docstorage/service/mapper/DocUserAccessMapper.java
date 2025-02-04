@@ -1,11 +1,14 @@
 package ru.yappy.docstorage.service.mapper;
 
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.LazyInitializationException;
 import ru.yappy.docstorage.model.DocUserAccess;
 import ru.yappy.docstorage.model.dto.DocUserAccessDto;
 
 import java.util.Set;
 
+@Slf4j
 @UtilityClass
 public class DocUserAccessMapper {
 
@@ -17,18 +20,16 @@ public class DocUserAccessMapper {
         );
     }
 
-    public DocUserAccess toModel(DocUserAccessDto docUserAccessDto) {
-        return new DocUserAccess(
-                docUserAccessDto.docId(),
-                docUserAccessDto.username(),
-                docUserAccessDto.accessType()
-        );
-    }
-
     public DocUserAccessDto[] toDtoArray(Set<DocUserAccess> docUserAccesses) {
-        return docUserAccesses.stream()
-                .map(DocUserAccessMapper::toDto)
-                .toArray(DocUserAccessDto[]::new);
+        try {
+            return docUserAccesses.stream()
+                    .map(DocUserAccessMapper::toDto)
+                    .toArray(DocUserAccessDto[]::new);
+        } catch (LazyInitializationException exception) {
+            log.info("Для мэппинга сущностей DocUserAccess поступили прокси-объекты, " +
+                    "которые не могут быть загружены из БД (сессия закрыта). Будет возвращен пустой массив.");
+            return new DocUserAccessDto[0];
+        }
     }
 
 }

@@ -12,6 +12,10 @@ import java.util.Set;
 @ToString
 @Entity
 @Table(name = "documents")
+@NamedEntityGraph(
+        name = "Document.includeUsersWithAccess",
+        attributeNodes = { @NamedAttributeNode("usersWithAccess") }
+)
 public class Document {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,7 +43,7 @@ public class Document {
     private LocalDateTime updatedAt;
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "docId")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "docId")
     private Set<DocUserAccess> usersWithAccess;
 
 }

@@ -15,5 +15,5 @@ public record DocumentDto(Long id,
                           AccessType commonAccessType,
                           String updatedBy,
                           @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
-                          LocalDateTime updateAt,
+                          LocalDateTime updatedAt,
                           DocUserAccessDto[] usersWithAccess) {}

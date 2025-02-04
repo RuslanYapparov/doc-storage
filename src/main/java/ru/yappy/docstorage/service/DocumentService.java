@@ -24,7 +24,7 @@ public interface DocumentService {
 
     DocumentDto updateEditedDocument(MultipartFile file, Long docId, String title, String description) throws IOException;
 
-    DocumentDto shareDocumentForAllUsersWithAccessType(Long docId, AccessType accessType);
+    DocumentDto shareDocumentForAllUsers(Long docId, AccessType accessType);
 
     DocumentDto closeSharedAccessToDocument(Long docId);
 

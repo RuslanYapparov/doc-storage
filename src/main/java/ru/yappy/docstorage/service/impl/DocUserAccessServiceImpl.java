@@ -37,24 +37,6 @@ public class DocUserAccessServiceImpl implements DocUserAccessService {
     }
 
     @Override
-    public boolean checkUserAccessToDocument(Long docId, String username) {
-        log.debug("Проверка доступа пользователя '{}' к документу с id={}.", username, docId);
-        boolean haveAccess = docUserAccessRepository.existsByDocIdAndUsername(docId, username);
-        log.debug("Пользователь '{}' {} имеет доступ к документу с id='{}'.", username, haveAccess ? "" : "НЕ", docId);
-        return haveAccess;
-    }
-
-    @Override
-    public boolean checkUserAccessToDocument(Long docId, String username, AccessType accessType) {
-        log.debug("Проверка доступа '{}' у пользователя '{}' к документу с id={}.", accessType, username, docId);
-        boolean haveAccess = docUserAccessRepository.existsByDocIdAndUsernameAndAccessType(docId,
-                username, accessType);
-        log.debug("Пользователь '{}' {} имеет доступ '{}' к документу с id='{}'.", username, accessType,
-                haveAccess ? "" : "НЕ", docId);
-        return haveAccess;
-    }
-
-    @Override
     public DocUserAccessDto grantAccessToDocumentForUser(DocUserAccessDto dto) {
         log.debug("Начало выполнения операции сохранения новых пользовательских прав '{}' на документ с id='{}' " +
                 "для пользователя '{}'.", dto.accessType(), dto.docId(), dto.username());

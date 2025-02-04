@@ -120,7 +120,7 @@ public class DocumentController {
                                            @RequestParam("accessType") String accessString) {
         AccessType accessType = AccessType.valueOf(accessString.toUpperCase());
         log.info("Получен запрос на открытие '{}' общего доступа к документу с id={}", accessType, id);
-        DocumentDto documentDto = documentService.shareDocumentForAllUsersWithAccessType(id, accessType);
+        DocumentDto documentDto = documentService.shareDocumentForAllUsers(id, accessType);
         log.info("Общий доступ с типом '{}' к документу с id={} успешно открыт.", accessType, id);
         return documentDto;
     }
