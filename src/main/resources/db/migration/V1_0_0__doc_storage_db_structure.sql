@@ -4,7 +4,15 @@ CREATE TABLE users (
     password NVARCHAR(255) NOT NULL,
     email NVARCHAR(255) NOT NULL UNIQUE,
     first_name NVARCHAR(50),
-    last_name NVARCHAR(50)
+    last_name NVARCHAR(50),
+    is_enabled BIT NOT NULL
+);
+
+CREATE TABLE verification_tokens (
+    token UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+    user_id INT NOT NULL,
+    expiry_date DATETIME NULL,
+    CONSTRAINT fk_verification_user FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
 CREATE TABLE documents (

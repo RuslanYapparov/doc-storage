@@ -20,7 +20,8 @@ public class UserMapper {
     public UserDto toDto(User user) {
         return new UserDto(user.getUsername(),
                 user.getFirstName(),
-                user.getLastName());
+                user.getLastName(),
+                user.isEnabled());
     }
 
 }

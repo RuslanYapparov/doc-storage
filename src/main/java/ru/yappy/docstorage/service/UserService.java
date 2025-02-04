@@ -7,8 +7,6 @@ public interface UserService extends UserDetailsService {
 
     UserDto saveNewUser(NewUserDto newUserDto);
 
-    UserDto getUserDtoByUsername(String username);
-
     UserDetails getAuthenticatedUser();
 
 }

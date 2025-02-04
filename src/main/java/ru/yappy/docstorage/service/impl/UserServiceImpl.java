@@ -9,18 +9,22 @@ import org.springframework.stereotype.Service;
 import ru.yappy.docstorage.model.User;
 import ru.yappy.docstorage.model.dto.*;
 import ru.yappy.docstorage.out.repo.UserRepository;
+import ru.yappy.docstorage.service.ConfirmationService;
 import ru.yappy.docstorage.service.UserService;
 import ru.yappy.docstorage.service.mapper.UserMapper;
 
 @Slf4j
 @Service
 public class UserServiceImpl implements UserService {
+    private final ConfirmationService confirmationService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository,
+    public UserServiceImpl(ConfirmationService confirmationService,
+                           UserRepository userRepository,
                            PasswordEncoder passwordEncoder) {
+        this.confirmationService = confirmationService;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -40,15 +44,10 @@ public class UserServiceImpl implements UserService {
         User user = UserMapper.toModel(newUserDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user = userRepository.save(user);
+        confirmationService.sendMessageWithTokenToNewUser(user);
         UserDto userDto = UserMapper.toDto(user);
         log.debug("Данные нового пользователя сохранены, присвоен идентификатор {}", user.getId());
         return userDto;
-    }
-
-    @Override
-    public UserDto getUserDtoByUsername(String username) {
-        User user = (User) loadUserByUsername(username);
-        return UserMapper.toDto(user);
     }
 
     @Override
