@@ -74,11 +74,7 @@ public class DocumentServiceImpl implements DocumentService {
         User user = (User) userService.getAuthenticatedUser();
         log.debug("Начало операции получения сохраненных документов пользователя '{}' с параметрами {}.",
                 user.getUsername(), paramHolder.toStringForSavedDocs());
-        Pageable page = PageRequest.of((paramHolder.from() / paramHolder.size()),
-                paramHolder.size(),
-                paramHolder.order(),
-                paramHolder.sortBy().getPropertyName()
-        );
+        Pageable page = makePageableWithParameters(paramHolder);
         Stream<Document> docStream = documentRepository.findAllByOwnerId(user.getId(), page).stream();
         DocumentDto[] docDtos = DocumentMapper.toDtoArray(docStream);
         log.debug("Данные о {} сохраненных документах пользователя '{}', начиная с позиции '{}', получены из базы.",
@@ -91,22 +87,16 @@ public class DocumentServiceImpl implements DocumentService {
         User user = (User) userService.getAuthenticatedUser();
         log.debug("Начало операции получения доступных пользователю '{}' документов с параметрами {}.",
                 user.getUsername(), paramHolder);
-        Pageable page = PageRequest.of((paramHolder.from() / paramHolder.size()),
-                paramHolder.size(),
-                paramHolder.order(),
-                paramHolder.sortBy().getPropertyName()
-        );
+        Pageable page = makePageableWithParameters(paramHolder);
         Page<Document> documents;
-        Long userId = user.getId();
-        String username = user.getUsername();
         if (paramHolder.withOwned()) {
             documents = paramHolder.withSharedForAll() ?
-                    documentRepository.findAllAvailableByUsername(username, page) :
-                    documentRepository.findAllAvailableWithoutSharedByUsername(username, page);
+                    documentRepository.findAllAvailable(user.getUsername(), page) :
+                    documentRepository.findAllAvailableWithoutShared(user.getUsername(), page);
         } else {
             documents = paramHolder.withSharedForAll() ?
-                    documentRepository.findAllAvailableWithoutOwnedByUsername(username, userId, page) :
-                    documentRepository.findAllAvailableWithoutOwnedAndSharedByUsername(username, userId, page);
+                    documentRepository.findAllAvailableWithoutOwned(user.getUsername(), user.getId(), page) :
+                    documentRepository.findAllAvailableWithoutOwnedAndShared(user.getUsername(), user.getId(), page);
         }
         DocumentDto[] docDtos = DocumentMapper.toDtoArray(documents.stream());
         log.debug("Данные о {} доступных пользователю '{}' документах, начиная с позиции '{}', получены из базы.",
@@ -116,12 +106,44 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public DocumentDto[] searchInSavedDocumentsWithParameters(SearchInDocsParamHolder paramHolder) {
-        return new DocumentDto[0];
+        User user = (User) userService.getAuthenticatedUser();
+        log.debug("Начало операции поиска в сохраненных документах пользователя '{}' с параметрами {}.",
+                user.getUsername(), paramHolder.toStringForSavedDocs());
+        Pageable page = makePageableWithParameters(paramHolder);
+        Stream<Document> docStream = documentRepository.searchInSaved(user.getId(),
+                paramHolder.searchFor(), paramHolder.since(), paramHolder.until(), page).stream();
+        DocumentDto[] docDtos = DocumentMapper.toDtoArray(docStream);
+        log.debug("Данные о {} результатах поиска в сохраненных документах пользователя '{}', " +
+                        "начиная с позиции '{}', получены из базы.",
+                docDtos.length, user.getUsername(), paramHolder.from());
+        return docDtos;
     }
 
     @Override
     public DocumentDto[] searchInAvailableDocumentsWithParameters(SearchInDocsParamHolder paramHolder) {
-        return new DocumentDto[0];
+        User user = (User) userService.getAuthenticatedUser();
+        log.debug("Начало операции поиска в доступных для пользователя '{}' документах с параметрами {}.",
+                user.getUsername(), paramHolder);
+        Pageable page = makePageableWithParameters(paramHolder);
+        Page<Document> documents;
+        if (paramHolder.withOwned()) {
+            documents = paramHolder.withSharedForAll() ?
+                    documentRepository.searchInAllAvailable(user.getUsername(),
+                            paramHolder.searchFor(), paramHolder.since(), paramHolder.until(), page) :
+                    documentRepository.searchInAllAvailableWithoutShared(user.getUsername(),
+                            paramHolder.searchFor(), paramHolder.since(), paramHolder.until(), page);
+        } else {
+            documents = paramHolder.withSharedForAll() ?
+                    documentRepository.searchInAllAvailableWithoutOwned(user.getUsername(), user.getId(),
+                            paramHolder.searchFor(), paramHolder.since(), paramHolder.until(), page) :
+                    documentRepository.searchInAllAvailableWithoutOwnedAndShared(user.getUsername(), user.getId(),
+                            paramHolder.searchFor(), paramHolder.since(), paramHolder.until(), page);
+        }
+        DocumentDto[] docDtos = DocumentMapper.toDtoArray(documents.stream());
+        log.debug("Данные о {} результатах поиска в доступных для пользователя '{}' документах, " +
+                        "начиная с позиции '{}', получены из базы.",
+                docDtos.length, user.getUsername(), paramHolder.from());
+        return docDtos;
     }
 
     @Override
@@ -200,6 +222,26 @@ public class DocumentServiceImpl implements DocumentService {
                     "документа с id='%d' и не может управлять доступом к нему.", username, docId));
         }
         return document;
+    }
+
+    private Pageable makePageableWithParameters(Object paramHolder) {
+        Pageable page;
+        if (paramHolder instanceof GetDocsParamHolder get) {
+            page = PageRequest.of((get.from() / get.size()),
+                    get.size(),
+                    get.order(),
+                    get.sortBy().getPropertyName()
+            );
+        } else if (paramHolder instanceof SearchInDocsParamHolder search) {
+            page = PageRequest.of((search.from() / search.size()),
+                    search.size(),
+                    search.order(),
+                    search.sortBy().getPropertyName()
+            );
+        } else {
+            page = PageRequest.of(0, 10);
+        }
+        return page;
     }
 
 }
