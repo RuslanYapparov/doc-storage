@@ -9,7 +9,6 @@ import ru.yappy.docstorage.model.Document;
 @Repository
 public interface DocumentRepository extends JpaRepository<Document, Long> {
 
-    @EntityGraph(value = "Document.includeUsersWithAccess", type = EntityGraph.EntityGraphType.LOAD)
     Page<Document> findAllByOwnerId(Long ownerId, Pageable page);
 
     @Query("""

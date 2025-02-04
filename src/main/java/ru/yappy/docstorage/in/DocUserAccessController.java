@@ -5,6 +5,7 @@ import jakarta.validation.constraints.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yappy.docstorage.model.AccessType;
 import ru.yappy.docstorage.model.User;
 import ru.yappy.docstorage.model.dto.DocUserAccessDto;
 import ru.yappy.docstorage.service.*;
@@ -32,6 +33,19 @@ public class DocUserAccessController {
         log.info("Данные о доступе '{}' пользователя '{}' к документу с id={} успешно сохранены",
                 docUserAccessDto.accessType(), user.getUsername(), docUserAccessDto.docId());
         return dto;
+    }
+
+    @GetMapping("{docId}")
+    public String[] getUsernamesWithGrantedAccess(@PathVariable("docId") @Valid @Min(1) Long docId,
+                                                  @RequestParam(name = "accessType", required = false) String access) {
+        User user = (User) userService.getAuthenticatedUser();
+        AccessType accessType = (access != null) ? AccessType.valueOf(access.toUpperCase()) : null;
+        log.info("Поступил запрос от пользователя '{}' на получение списка имен пользователей с доступом {} к " +
+                        "документу с id={}", user.getUsername(), accessType, docId);
+        String[] usernames = docUserAccessService.getUsernamesWithGrantedAccess(docId, accessType);
+        log.info("Массив из {} имен  пользователей с доступом к документу с id={} успешно получен",
+                usernames.length, docId);
+        return usernames;
     }
 
     @DeleteMapping

@@ -12,8 +12,6 @@ public class DocumentMapper {
     private static final String SEPARATOR = FileSystems.getDefault().getSeparator();
 
     public DocumentDto toDto(Document document) {
-        DocUserAccessDto[] usersWithAccessDtos = (document.getUsersWithAccess() != null) ?
-                DocUserAccessMapper.toDtoArray(document.getUsersWithAccess()) : null;
         return new DocumentDto(
                 document.getId(),
                 document.getTitle(),
@@ -23,8 +21,7 @@ public class DocumentMapper {
                 document.getCreatedAt(),
                 document.getCommonAccessType(),
                 document.getUpdatedBy(),
-                document.getUpdatedAt(),
-                usersWithAccessDtos
+                document.getUpdatedAt()
         );
     }
 

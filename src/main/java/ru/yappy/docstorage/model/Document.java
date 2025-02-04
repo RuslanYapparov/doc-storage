@@ -12,10 +12,6 @@ import java.util.Set;
 @ToString
 @Entity
 @Table(name = "documents")
-@NamedEntityGraph(
-        name = "Document.includeUsersWithAccess",
-        attributeNodes = { @NamedAttributeNode("usersWithAccess") }
-)
 public class Document {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

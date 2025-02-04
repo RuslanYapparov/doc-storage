@@ -17,7 +17,6 @@ import ru.yappy.docstorage.service.mapper.DocumentMapper;
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.*;
-import java.util.Set;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -44,7 +43,6 @@ public class DocumentServiceImpl implements DocumentService {
         log.debug("Начало операции сохранения данных о документе в базе и файла документа в хранилище.");
         User owner = (User) userService.getAuthenticatedUser();
         Path filePath = fileManager.saveFile(file);
-
         Document document = new Document();
         document.setTitle(title);
         document.setDescription(description);
@@ -52,10 +50,8 @@ public class DocumentServiceImpl implements DocumentService {
         document.setFilePath(filePath.toString());
         document.setCreatedAt(LocalDate.now());
         document = documentRepository.save(document);
-
         document.setFilePath(filePath.getFileName().toString());
-        document.setUsersWithAccess(Set.of(docUserAccessService.saveAccessToDocumentForOwner(document.getId(),
-                owner.getUsername())));
+        docUserAccessService.saveAccessToDocumentForOwner(document.getId(), owner.getUsername());
         DocumentDto documentDto = DocumentMapper.toDto(document);
         log.debug("Данные о документе успешно сохранены в базе, а файл документа в хранилище.");
         return documentDto;
@@ -65,7 +61,8 @@ public class DocumentServiceImpl implements DocumentService {
     public Resource getDocumentResourceById(Long id) throws IOException {
         User user = (User) userService.getAuthenticatedUser();
         log.debug("Начало операции получения файла документа из хранилища для пользователя '{}'", user.getUsername());
-        Document document = getCheckedDocumentForOperations(AccessType.READ_ONLY, id, user.getUsername());
+        Document document =
+                docUserAccessService.getCheckedDocumentForOperations(AccessType.READ_ONLY, id, user.getUsername());
         Path docPath = Paths.get(document.getFilePath());
         InputStreamResource docResource = new InputStreamResource(fileManager.getDocumentInputStream(docPath));
         log.debug("Данные о документе найдены в базе, файл документа подготовлен для отправки.");
@@ -132,7 +129,8 @@ public class DocumentServiceImpl implements DocumentService {
             throws IOException {
         log.debug("Начало операции обновления данных о документе в базе и файла документа в хранилище.");
         User user = (User) userService.getAuthenticatedUser();
-        Document document = getCheckedDocumentForOperations(AccessType.EDIT, docId, user.getUsername());
+        Document document =
+                docUserAccessService.getCheckedDocumentForOperations(AccessType.EDIT, docId, user.getUsername());
         if (file != null) {
             fileManager.updateFile(file, Paths.get(document.getFilePath()));
         }
@@ -184,7 +182,8 @@ public class DocumentServiceImpl implements DocumentService {
     public DocumentDto deleteDocument(Long docId) throws IOException {
         log.debug("Начало операции удаления данных о документе в базе и файла документа в хранилище.");
         User user = (User) userService.getAuthenticatedUser();
-        Document document = getCheckedDocumentForOperations(AccessType.REMOVE, docId, user.getUsername());
+        Document document =
+                docUserAccessService.getCheckedDocumentForOperations(AccessType.REMOVE, docId, user.getUsername());
         fileManager.deleteFile(Paths.get(document.getFilePath()));
         documentRepository.deleteById(docId);
         document.setDescription("REMOVED");
@@ -201,60 +200,6 @@ public class DocumentServiceImpl implements DocumentService {
                     "документа с id='%d' и не может управлять доступом к нему.", username, docId));
         }
         return document;
-    }
-
-    private Document getCheckedDocumentForOperations(AccessType operationType, Long docId, String username) {
-        Document document = documentRepository.findById(docId)
-                .orElseThrow(() -> new ObjectNotFoundException(docId, "Document"));
-        boolean haveNotGrantedAccessTypeForOperation = checkUserHaveNotGrantedAccessToDocument(
-                document.getUsersWithAccess().stream(), operationType, docId, username);
-        switch (operationType) {
-            case READ_ONLY -> {
-                if (document.getCommonAccessType() == null &&
-                        haveNotGrantedAccessTypeForOperation) {
-                throw new IllegalArgumentException(String.format("Документ с id=%d не доступен для скачивания " +
-                                "пользователю '%s'", document.getId(), username));
-                }
-            }
-            case EDIT -> {
-                if ((document.getCommonAccessType() == null ||
-                        AccessType.READ_ONLY.equals(document.getCommonAccessType())) &&
-                        haveNotGrantedAccessTypeForOperation) {
-                    throw new IllegalArgumentException(String.format("Документ с id=%d не доступен для обновления " +
-                            "пользователю '%s'", document.getId(), username));
-                }
-            }
-            case REMOVE -> {
-                if (!AccessType.REMOVE.equals(document.getCommonAccessType()) &&
-                        haveNotGrantedAccessTypeForOperation) {
-                    throw new IllegalArgumentException(String.format("Документ с id=%d не доступен для удаления " +
-                            "пользователю '%s'", document.getId(), username));
-                }
-            }
-        }
-        return document;
-    }
-
-    private boolean checkUserHaveNotGrantedAccessToDocument(Stream<DocUserAccess> accesses, AccessType operationType,
-                                                            Long docId, String username) {
-        switch (operationType) {
-            case READ_ONLY -> {
-                return accesses.noneMatch(access -> access.getUsername().equals(username) &&
-                                access.getDocId().equals(docId));
-            }
-            case EDIT -> {
-                return accesses.noneMatch(access -> access.getUsername().equals(username) &&
-                        access.getDocId().equals(docId) &&
-                        !AccessType.READ_ONLY.equals(access.getAccessType()));
-            }
-            case REMOVE -> {
-                return accesses.noneMatch(access -> access.getUsername().equals(username) &&
-                        access.getDocId().equals(docId) &&
-                        AccessType.REMOVE.equals(access.getAccessType()));
-            }
-            case null, default ->
-                    throw new IllegalStateException(String.format("Неизвестный тип операции: %s", operationType));
-        }
     }
 
 }
