@@ -5,7 +5,7 @@ import ru.yappy.docstorage.model.dto.DocUserAccessDto;
 
 public interface DocUserAccessService {
 
-    void saveAccessToDocumentForOwner(Long docId, String usernameOfRecipient);
+    void saveAccessToDocumentForOwner(Long docId, String ownerName);
 
     DocUserAccessDto grantAccessToDocumentForUser(DocUserAccessDto docUserAccessDto);
 

@@ -9,6 +9,13 @@ public record GetDocsParamHolder(DocSortType sortBy,
                                  boolean withOwned,
                                  boolean withSharedForAll) {
 
+    public GetDocsParamHolder(DocSortType sortBy,
+                              Sort.Direction order,
+                              int from,
+                              int size) {
+        this(sortBy, order, from, size, true, true);
+    }
+
     public String toStringForSavedDocs() {
         return "GetDocsParamHolder{" +
                 "sortBy=" + sortBy +

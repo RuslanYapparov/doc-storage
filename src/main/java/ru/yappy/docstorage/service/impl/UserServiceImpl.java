@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.debug("Начало выполнения операции получения данных пользователя с именем {}", username);
         User user = userRepository.findByUsername(username).orElseThrow(() ->
-                new UsernameNotFoundException("Пользователь с username='" + username + "' не был сохранен"));
+                new UsernameNotFoundException("Пользователь с username='" + username + "' не был сохранен."));
         log.debug("Данные пользователя получены: {}", user);
         return user;
     }

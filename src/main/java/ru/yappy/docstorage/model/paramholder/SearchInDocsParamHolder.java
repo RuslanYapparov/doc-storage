@@ -14,6 +14,16 @@ public record SearchInDocsParamHolder(String searchFor,
                                       boolean withOwned,
                                       boolean withSharedForAll) {
 
+    public SearchInDocsParamHolder(String searchFor,
+                                   LocalDate since,
+                                   LocalDate until,
+                                   DocSortType sortBy,
+                                   Sort.Direction order,
+                                   int from,
+                                   int size) {
+        this(searchFor, since, until, sortBy, order, from, size, true, true);
+    }
+
     public String toStringForSavedDocs() {
         return "SearchInDocsParamHolder{" +
                 "searchFor='" + searchFor + '\'' +

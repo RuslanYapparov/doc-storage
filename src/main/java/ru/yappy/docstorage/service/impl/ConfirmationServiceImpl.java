@@ -1,11 +1,9 @@
 package ru.yappy.docstorage.service.impl;
 
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.*;
-import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.*;
 import org.springframework.stereotype.Service;
 import ru.yappy.docstorage.model.*;
@@ -43,8 +41,9 @@ public class ConfirmationServiceImpl implements ConfirmationService {
     public void sendMessageWithTokenToNewUser(User user) {
         log.debug("Начало выполнения операции отправки сообщения с ссылкой для подтверждения учетной записи " +
                 "пользователю '{}'.", user.getUsername());
-        VerificationToken token = new VerificationToken(UUID.randomUUID().toString(), user, LocalDateTime.now());
-        verificationTokenRepository.save(token);
+        VerificationToken token =
+                new VerificationToken(UUID.randomUUID().toString(), user, LocalDateTime.now().plusHours(24));
+        token = verificationTokenRepository.save(token);
         sendConfirmationEmail(user, token);
         log.debug("Электронное письмо с ссылкой для подтверждения учетной записи пользователя '{}' отправлено " +
                 "на адрес '{}'.", user.getUsername(), user.getEmail());
@@ -73,10 +72,10 @@ public class ConfirmationServiceImpl implements ConfirmationService {
                     "следующей ссылке: http://" + serverName + "/api/v1/users/confirm?token=" + token.getToken());
             helper.setFrom(from);
             mailSender.send(message);
-        } catch (MessagingException | MailSendException exception) {
-            log.error("Возникла ошибка при отправке сообщения для подтверждения адреса электронной почты: '{}'." +
+        } catch (Exception exception) {
+            log.error("Возникла ошибка при отправке сообщения для подтверждения адреса электронной почты: '{}: {}'." +
                     " Данные о новом пользователе '{}' и токене для проверке удаляются из базы.",
-                    exception.getMessage(), user.getUsername());
+                    exception.getClass(), exception.getMessage(), user.getUsername());
             verificationTokenRepository.delete(token);
             userRepository.deleteById(user.getId());
             log.info("Данные пользователя '{}' и его токен для проверки удалены из базы данных.", user.getUsername());

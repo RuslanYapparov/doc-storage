@@ -53,9 +53,7 @@ public class DocumentController {
                 DocSortType.valueOf(sort.toUpperCase()),
                 Sort.Direction.valueOf(order.toUpperCase()),
                 from,
-                size,
-                false,
-                false);
+                size);
         User user = (User) userService.getAuthenticatedUser();
         log.info("Получен запрос от пользователя '{}' на получение списка из '{}' сохраненных документов, " +
                         "отсортированных по '{}' в '{}' порядке, начиная с позиции '{}'.", user.getUsername(), size,
@@ -115,9 +113,7 @@ public class DocumentController {
                 DocSortType.valueOf(sort.toUpperCase()),
                 Sort.Direction.valueOf(order.toUpperCase()),
                 from,
-                size,
-                false,
-                false);
+                size);
         User user = (User) userService.getAuthenticatedUser();
         log.info("Получен запрос от пользователя '{}' на поиск в сохраненных документах с параметрами {}.",
                 user.getUsername(), searchInDocsParamHolder.toStringForSavedDocs());

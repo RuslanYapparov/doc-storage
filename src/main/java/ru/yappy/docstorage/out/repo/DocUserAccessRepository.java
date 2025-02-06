@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.*;
 import ru.yappy.docstorage.model.*;
 
 import java.util.Optional;
@@ -12,7 +11,7 @@ import java.util.Optional;
 @Repository
 public interface DocUserAccessRepository extends JpaRepository<DocUserAccess, Long> {
 
-    Optional<AccessType> findAccessTypeByDocIdAndUsername(Long docId, String username);
+    Optional<DocUserAccess> findByDocIdAndUsername(Long docId, String username);
 
     @Query("""
            SELECT dua.username FROM DocUserAccess dua
@@ -26,7 +25,6 @@ public interface DocUserAccessRepository extends JpaRepository<DocUserAccess, Lo
            """)
     String[] findUsernameByDocIdAndAccessType(@Param("docId") Long docId, @Param("accessType") AccessType accessType);
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     void deleteByDocIdAndUsername(Long docId, String username);
 
 }

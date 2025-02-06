@@ -173,7 +173,7 @@ public class DocumentServiceImpl implements DocumentService {
         User user = (User) userService.getAuthenticatedUser();
         Document document = getCheckedForOwnerDocument(docId, user.getUsername());
         if (accessType.equals(document.getCommonAccessType())) {
-            throw new IllegalArgumentException(String.format("Документ с id='%d' уже открыт с доступом '%s' " +
+            throw new IllegalArgumentException(String.format("Документ с id=%d уже открыт с доступом '%s' " +
                     "для всех пользователей.", docId, document.getCommonAccessType()));
         }
         document.setCommonAccessType(accessType);
@@ -190,7 +190,7 @@ public class DocumentServiceImpl implements DocumentService {
         User user = (User) userService.getAuthenticatedUser();
         Document document = getCheckedForOwnerDocument(docId, user.getUsername());
         if (document.getCommonAccessType() == null) {
-            throw new IllegalArgumentException(String.format("Документ с id='%d' уже закрыт для всех пользователей.",
+            throw new IllegalArgumentException(String.format("Документ с id=%d уже закрыт для всех пользователей.",
                     docId));
         }
         document.setCommonAccessType(null);
@@ -219,27 +219,26 @@ public class DocumentServiceImpl implements DocumentService {
                 .orElseThrow(() -> new ObjectNotFoundException(docId, "Document"));
         if (!username.equals(document.getOwner().getUsername())) {
             throw new IllegalArgumentException(String.format("Пользователь '%s' не является обладателем " +
-                    "документа с id='%d' и не может управлять доступом к нему.", username, docId));
+                    "документа с id=%d и не может управлять доступом к нему.", username, docId));
         }
         return document;
     }
 
     private Pageable makePageableWithParameters(Object paramHolder) {
-        Pageable page;
+        Pageable page = null;
         if (paramHolder instanceof GetDocsParamHolder get) {
             page = PageRequest.of((get.from() / get.size()),
                     get.size(),
                     get.order(),
                     get.sortBy().getPropertyName()
             );
-        } else if (paramHolder instanceof SearchInDocsParamHolder search) {
+        }
+        if (paramHolder instanceof SearchInDocsParamHolder search) {
             page = PageRequest.of((search.from() / search.size()),
                     search.size(),
                     search.order(),
                     search.sortBy().getPropertyName()
             );
-        } else {
-            page = PageRequest.of(0, 10);
         }
         return page;
     }

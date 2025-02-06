@@ -29,12 +29,12 @@ public class DocUserAccessServiceImpl implements DocUserAccessService {
     }
 
     @Override
-    public void saveAccessToDocumentForOwner(Long docId, String usernameOfRecipient) {
+    public void saveAccessToDocumentForOwner(Long docId, String ownerName) {
         log.debug("Начало выполнения операции сохранения прав обладателя на документ с id={} для пользователя '{}'.",
-                docId, usernameOfRecipient);
-        docUserAccessRepository.save(new DocUserAccess(docId, usernameOfRecipient, AccessType.REMOVE));
+                docId, ownerName);
+        docUserAccessRepository.save(new DocUserAccess(docId, ownerName, AccessType.REMOVE));
         log.debug("Пользователь '{}' теперь имеет доступ '{}' к документу с id={}.",
-                usernameOfRecipient, AccessType.REMOVE, docId);
+                ownerName, AccessType.REMOVE, docId);
     }
 
     @Override
@@ -58,8 +58,7 @@ public class DocUserAccessServiceImpl implements DocUserAccessService {
     public Document getCheckedDocumentForOperations(AccessType operationType, Long docId, String username) {
         Document document = documentRepository.findById(docId)
                 .orElseThrow(() -> new ObjectNotFoundException(docId, "Document"));
-        Optional<AccessType> grantedAccessType =
-                docUserAccessRepository.findAccessTypeByDocIdAndUsername(docId, username);
+        Optional<DocUserAccess> grantedAccessType = docUserAccessRepository.findByDocIdAndUsername(docId, username);
         switch (operationType) {
             case READ_ONLY -> {
                 if (document.getCommonAccessType() == null && grantedAccessType.isEmpty()) {
@@ -71,7 +70,7 @@ public class DocUserAccessServiceImpl implements DocUserAccessService {
                 boolean haveNotCommonAccess = document.getCommonAccessType() == null ||
                         AccessType.READ_ONLY.equals(document.getCommonAccessType());
                 boolean haveNotGrantedAccess = grantedAccessType.isEmpty() ||
-                        AccessType.READ_ONLY.equals(grantedAccessType.get());
+                        AccessType.READ_ONLY.equals(grantedAccessType.get().getAccessType());
                 if (haveNotCommonAccess && haveNotGrantedAccess) {
                     throw new IllegalArgumentException(String.format("Документ с id=%d не доступен для обновления " +
                             "пользователю '%s'", document.getId(), username));
@@ -79,7 +78,7 @@ public class DocUserAccessServiceImpl implements DocUserAccessService {
             }
             case REMOVE -> {
                 boolean haveNotGrantedAccess = grantedAccessType.isEmpty() ||
-                        !AccessType.REMOVE.equals(grantedAccessType.get());
+                        !AccessType.REMOVE.equals(grantedAccessType.get().getAccessType());
                 if (!AccessType.REMOVE.equals(document.getCommonAccessType()) && haveNotGrantedAccess) {
                     throw new IllegalArgumentException(String.format("Документ с id=%d не доступен для удаления " +
                             "пользователю '%s'", document.getId(), username));
