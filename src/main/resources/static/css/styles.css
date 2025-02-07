@@ -1,0 +1,34 @@
+* {
+  box-sizing: border-box;
+}
+
+body,
+h1,
+h2,
+h3,
+h4,
+p {
+  font-weight: normal;
+  font-size: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  background-image: url("favicon.ico");
+  background-size: cover;
+  background-position: center;
+}
+
+.background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("favicon.ico");
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
+}
