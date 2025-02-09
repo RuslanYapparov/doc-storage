@@ -27,10 +27,10 @@ public class SecurityConfig {
                                 .requestMatchers(
                                         "/*",
                                         "/login",
+                                        "/confirm*",
                                         "/styles.css",
-                                        "/api/v1/users*",
-                                        "/api/v1/users/confirm*").permitAll()
-                                .requestMatchers("/css/**", "/js/**", "/img/**").permitAll()
+                                        "/api/v1/users*").permitAll()
+                                .requestMatchers("/css/**", "/js/**", "/img/**", "/user/**").permitAll()
                                 .requestMatchers("/api/v1/docs", "/api/v1/docs/**").authenticated()
                                 .requestMatchers("/api/v1/accesses", "/api/v1/accesses/**").authenticated()
                 )

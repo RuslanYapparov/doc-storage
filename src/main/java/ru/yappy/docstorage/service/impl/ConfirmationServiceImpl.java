@@ -69,7 +69,7 @@ public class ConfirmationServiceImpl implements ConfirmationService {
             helper.setTo(user.getEmail());
             helper.setSubject("Подтверждение регистрации на " + serverName);
             helper.setText("Для подтверждения Вашей учетной записи на " + serverName + ", пожалуйста, перейдите по " +
-                    "следующей ссылке: http://" + serverName + "/api/v1/users/confirm?token=" + token.getToken());
+                    "следующей ссылке: http://" + serverName + "/confirm?token=" + token.getToken());
             helper.setFrom(from);
             mailSender.send(message);
         } catch (Exception exception) {

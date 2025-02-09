@@ -21,13 +21,22 @@ import java.util.stream.Collectors;
 public class DocStorageExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionDto handleDataIntegrityViolationException(DataIntegrityViolationException exception) {
-        return handleException(exception);
+        String message = exception.getMessage();
+        int firstIndex = message.lastIndexOf("ключа: ") + 7;
+        int lastIndex = message.indexOf(".] [insert into ");
+        String notUniqueValue = message.substring(firstIndex, lastIndex);
+        String ruMessage = String.format("Невозможно сохранить данные пользователя, значение %s для соответствующего " +
+                "поля уже используется.", notUniqueValue);
+        return new ExceptionDto(LocalDateTime.now(),
+                exception.getClass().getSimpleName(),
+                ruMessage,
+                getDefaultExceptionDetails(exception.getStackTrace()));
     }
 
     @ExceptionHandler(ObjectNotFoundException.class)
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionDto handleObjectNotFoundException(ObjectNotFoundException exception) {
         String ruMessage = String.format("Объект '%s' с идентификатором id=%s не найден в базе данных",
                 exception.getEntityName(), exception.getIdentifier());

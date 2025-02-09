@@ -24,6 +24,11 @@ public class BaseController {
         return "index.html";
     }
 
+    @GetMapping("/login")
+    public String login() {
+        return "login.html";
+    }
+
     @GetMapping("/**")
     public ResponseEntity<Resource> serveStaticFile(HttpServletRequest request) {
         String requestPath = request.getRequestURI();

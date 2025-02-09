@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация нового пользователя</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+<div class="main-content">
+    <div class="container d-flex align-items-center justify-content-center min-vh-100">
+        <div class="content w-100" style="max-width: 500px;">
+            <div class="form-container bg-white p-4 shadow rounded">
+                <h2 class="text-center mb-4">Регистрация нового пользователя</h2>
+                <form id="registrationForm" action="/api/v1/users" method="POST" novalidate>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Имя пользователя</label>
+                        <input type="text" class="form-control" id="username" name="username"
+                               pattern="^[A-Za-z0-9]+$" title="Используйте только латиницу и цифры"
+                               placeholder="Введите имя пользователя" required minlength="3" maxlength="20">
+                        <div class="invalid-feedback">Имя пользователя должно быть от 3 до 20 символов и содержать только латиницу и цифры.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Пароль</label>
+                        <input type="password" class="form-control" id="password" name="password"
+                               pattern="^[A-Za-z0-9]+$" title="Используйте только латиницу и цифры"
+                               placeholder="Введите пароль" required minlength="5" maxlength="15">
+                        <div class="invalid-feedback">Пароль должен быть от 5 до 15 символов и содержать только латиницу и цифры.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email"
+                               placeholder="Введите email" required>
+                        <div class="invalid-feedback">Введите корректный адрес электронной почты.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="firstName" class="form-label">Имя</label>
+                        <input type="text" class="form-control" id="firstName" name="firstName"
+                               placeholder="Введите ваше имя">
+                    </div>
+                    <div class="mb-3">
+                        <label for="lastName" class="form-label">Фамилия</label>
+                        <input type="text" class="form-control" id="lastName" name="lastName"
+                               placeholder="Введите вашу фамилию">
+                    </div>
+                    <div id="error-messages" class="alert alert-danger d-none"></div>
+                    <button type="submit" class="btn btn-primary w-100 btn-register mt-3">Сохранить</button>
+                </form>
+                <div class="mt-4 text-warning text-center">
+                    <p class="mb-0">
+                        <strong>Внимание!</strong> После регистрации на указанный адрес будет направлено сообщение
+                        с подтверждением. Перейдите по ссылке для активации учетной записи.
+                    </p>
+                </div>
+                <div class="mt-4 text-center">
+                    <p>Уже есть учетная запись?</p>
+                    <a href="/static/login.html" class="btn btn-secondary w-100">Войти</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const registrationForm = document.getElementById("registrationForm");
+
+        registrationForm.addEventListener("submit", function (event) {
+            if (!registrationForm.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+                registrationForm.classList.add("was-validated");
+            } else {
+                // Отправка формы на сервер
+                const formData = new FormData(registrationForm);
+                event.preventDefault();
+                fetch(registrationForm.action, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(Object.fromEntries(formData))
+                }).then(response => {
+                    if (response.ok) {
+                        alert("Вы успешно зарегистрировались! Проверьте свою почту.");
+                        window.location.href = "/";
+                    } else {
+                        return response.json().then(data => {
+                            const errorMessages = document.getElementById("error-messages");
+                            errorMessages.textContent = data.message || "Ошибка регистрации.";
+                            errorMessages.classList.remove("d-none");
+                        });
+                    }
+                }).catch(() => {
+                    const errorMessages = document.getElementById("error-messages");
+                    errorMessages.textContent = "Ошибка соединения с сервером.";
+                    errorMessages.classList.remove("d-none");
+                });
+            }
+        });
+
+        registrationForm.addEventListener("input", function (event) {
+            const input = event.target;
+            if (input.checkValidity()) {
+                input.classList.remove("is-invalid");
+                input.classList.add("is-valid");
+            } else {
+                input.classList.remove("is-valid");
+                input.classList.add("is-invalid");
+            }
+        });
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

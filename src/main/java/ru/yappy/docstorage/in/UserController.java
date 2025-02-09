@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,8 +13,7 @@ import ru.yappy.docstorage.service.ConfirmationService;
 import ru.yappy.docstorage.service.UserService;
 
 @Slf4j
-@RestController
-@RequestMapping("/api/v1/users")
+@Controller
 public class UserController {
     private final UserService userService;
     private final ConfirmationService confirmationService;
@@ -25,8 +25,9 @@ public class UserController {
         this.confirmationService = confirmationService;
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/api/v1/users", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
     public UserDto saveNewUser(@RequestBody @Valid NewUserDto newUserDto) {
         log.info("Поступил запрос на сохранение данных нового пользователя {}", newUserDto);
         UserDto userDto = userService.saveNewUser(newUserDto);
@@ -35,10 +36,11 @@ public class UserController {
     }
 
     @GetMapping(value = "/confirm", produces = MediaType.APPLICATION_JSON_VALUE)
-    public void confirmUser(@RequestParam(name = "token") @Valid @NotBlank String token) {
+    public String confirmUser(@RequestParam(name = "token") @Valid @NotBlank String token) {
         log.info("Поступил запрос на подтверждение учетной записи пользователя по токену {}", token);
         UserDto userDto = confirmationService.confirmEmailAndEnableUser(token);
         log.info("Учетная запись пользователя '{}' успешно подтверждена", userDto.username());
+        return "/user/confirmed.html";
     }
 
 }
