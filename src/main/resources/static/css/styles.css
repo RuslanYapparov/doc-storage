@@ -1,34 +1,148 @@
-* {
-  box-sizing: border-box;
-}
-
-body,
-h1,
-h2,
-h3,
-h4,
-p {
-  font-weight: normal;
-  font-size: 100%;
+html, body {
+  height: 100%;
+  margin: 0;
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  height: 100vh;
-  background-image: url("favicon.ico");
-  background-size: cover;
+  display: flex;
+  flex-direction: column;
+  background-image: url('/img/background.webp');
+  background-size: contain;
   background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
 }
 
-.background {
+body::before {
+  content: '';
   position: absolute;
   top: 0;
+  right: 0;
+  bottom: 0;
   left: 0;
+  background: rgba(255, 255, 255, 0.7);
+  z-index: 1;
+}
+
+.content {
+  flex: 1 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.main-content {
+  flex: 1 0 auto;
+}
+
+.login-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 25px;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-login {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-login:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.app-title {
+  position: absolute;
+  bottom: 100px;
+  right: 50px;
+  font-size: 3rem;
+  color: #2c3e50;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
+  z-index: 2;
+  max-width: 50%;
+  text-align: right;
+}
+
+.form-container {
+  background-color: white;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Лёгкая тень для формы */
+  position: relative;
+  z-index: 2;
+}
+
+#error-messages {
+  display: block; /* Меняем базовое состояние; пусть оно будет видимым, когда нужно */
+  visibility: hidden; /* Сообщение будет скрыто по умолчанию */
+  opacity: 0;
+  margin-top: 10px;
+  transition: opacity 0.3s ease-out; /* Анимация появления */
+}
+
+/* Когда класс d-none удалён, сообщение об ошибке становится видимым */
+#error-messages:not(.d-none) {
+  visibility: visible; /* Показываем сообщение */
+  opacity: 1; /* Делаем его непрозрачным */
+}
+
+/* Остальные стили для error-messages */
+.alert {
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+/* Wrapper для footer */
+footer {
+  flex-shrink: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  text-align: center;
+  padding: 20px 0;
+  position: relative;
+  z-index: 2;
+  margin-top: auto;
   width: 100%;
-  height: 100%;
-  background-image: url("favicon.ico");
-  background-size: cover;
-  background-position: center;
-  z-index: -1;
+}
+
+.footer-content {
+  font-size: 1.1rem;
+}
+
+/* Медиазапросы */
+@media (max-width: 768px) {
+  .app-title {
+    font-size: 2rem;
+    bottom: 80px;
+    right: 20px;
+  }
+}
+
+@media (min-width: 2000px) {
+  body {
+    background-size: 100% 100%;
+  }
 }

@@ -20,6 +20,7 @@ public class DocStorageServer {
         createTmpFolder();
         Tomcat tomcat = new Tomcat();
         tomcat.getConnector().setPort(PORT);
+        tomcat.getConnector().setURIEncoding("UTF-8");
         Context tomcatContext = tomcat.addContext("", new File(".").getAbsolutePath());
 
         AnnotationConfigWebApplicationContext applicationContext =
