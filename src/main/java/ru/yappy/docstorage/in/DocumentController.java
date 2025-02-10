@@ -5,7 +5,9 @@ import jakarta.validation.constraints.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.*;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.yappy.docstorage.model.*;
@@ -14,6 +16,7 @@ import ru.yappy.docstorage.model.paramholder.*;
 import ru.yappy.docstorage.service.*;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDate;
 
 @Slf4j
@@ -95,6 +98,20 @@ public class DocumentController {
         Resource docResource = documentService.getDocumentResourceById(id);
         log.info("Файл документа успешно загружен.");
         return docResource;
+    }
+
+    @GetMapping(value = "/open/{id}")
+    public ResponseEntity<Resource> getDocumentToOpenInBrowserById(
+            @PathVariable("id") @Min(1) Long id) throws IOException {
+        log.info("Получен запрос на загрузку файла документа для открытия в браузера с id={}", id);
+        Resource docResource = documentService.getDocumentResourceById(id);
+        String fileType = Files.probeContentType(docResource.getFile().toPath());
+        HttpHeaders headers = getHttpHeadersToOpenFileInBrowser(fileType);
+        ResponseEntity<Resource> responseWithResource = ResponseEntity.ok()
+                .headers(headers)
+                .body(docResource);
+        log.info("Файл документа успешно загружен для открытия в браузере.");
+        return responseWithResource;
     }
 
     @GetMapping(value = "/search/owned", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -195,6 +212,19 @@ public class DocumentController {
         DocumentDto docDto = documentService.deleteDocument(id);
         log.info("Документ с id={} успешно удален.", id);
         return docDto;
+    }
+
+    private static HttpHeaders getHttpHeadersToOpenFileInBrowser(String fileType) {
+        HttpHeaders headers = new HttpHeaders();
+        switch (fileType) {
+            case "application/pdf" -> headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PDF_VALUE);
+            case "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ->
+                    headers.add(HttpHeaders.CONTENT_TYPE,
+                            "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+            default -> throw new IllegalArgumentException(String.format("Запрошен документ для открытия в браузере с " +
+                    "неподдерживаемым типом '%s'.", fileType));
+        }
+        return headers;
     }
 
 }

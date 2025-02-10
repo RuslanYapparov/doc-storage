@@ -10,9 +10,9 @@ public record DocumentDto(Long id,
                           String description,
                           String ownerName,
                           String fileName,
-                          @JsonFormat(pattern = "dd-MM-yyyy")
+                          @JsonFormat(pattern = "dd.MM.yyyy")
                           LocalDate createdAt,
                           AccessType commonAccessType,
                           String updatedBy,
-                          @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+                          @JsonFormat(pattern = "dd.MM.yyyy HH:mm:ss")
                           LocalDateTime updatedAt) {}

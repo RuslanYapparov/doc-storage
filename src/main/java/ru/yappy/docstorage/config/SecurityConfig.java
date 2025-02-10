@@ -28,10 +28,18 @@ public class SecurityConfig {
                                         "/*",
                                         "/login",
                                         "/confirm*",
-                                        "/styles.css",
                                         "/api/v1/users*").permitAll()
                                 .requestMatchers("/css/**", "/js/**", "/img/**", "/user/**").permitAll()
-                                .requestMatchers("/api/v1/docs", "/api/v1/docs/**").authenticated()
+                                .requestMatchers("/css/**", "/js/**", "/img/**", "/user/**").permitAll()
+                                .requestMatchers("/docs/**", "/docs/css/**", "/docs/js/**").permitAll()
+                                .requestMatchers("/api/v1/docs",
+                                        "/api/v1/docs/*",
+                                        "/api/v1/docs/open/*",
+                                        "/api/v1/docs/search/*",
+                                        "/api/v1/docs/updating/*",
+                                        "/api/v1/docs/share/open/*",
+                                        "/api/v1/docs/share/close/*"
+                                ).authenticated()
                                 .requestMatchers("/api/v1/accesses", "/api/v1/accesses/**").authenticated()
                 )
                 .formLogin(form -> form
@@ -39,7 +47,7 @@ public class SecurityConfig {
                         .loginProcessingUrl("/perform-login")
                         .usernameParameter("username")
                         .passwordParameter("password")
-                        .defaultSuccessUrl("/api/v1/docs/owned", true)
+                        .defaultSuccessUrl("/docs/owned.html", true)
                         .failureHandler((request, response, exception) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.setContentType("application/json;charset=UTF-8");

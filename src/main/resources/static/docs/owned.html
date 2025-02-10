@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сохраненные документы</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-dark navbar-expand-lg">
+    <div class="container-fluid">
+        <div class="d-flex align-items-center">
+            <p class="navbar-brand ml-2">
+                Система хранения документов
+            </p>
+
+            <div class="collapse navbar-collapse justify-content-begin" id="mainNavDropdown">
+                <ul class="navbar-nav">
+                    <!-- Пункты меню -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                           href="#"
+                           role="button"
+                           id="navbarDropdownMenu"
+                           data-toggle="dropdown"
+                           aria-haspopup="true"
+                           aria-expanded="false">
+                            Меню
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right"
+                             aria-labelledby="navbarDropdownMenu">
+                            <a class="dropdown-item active" href="#">Сохраненные документы</a>
+                            <a class="dropdown-item" href="#">Доступные документы</a>
+                            <a class="dropdown-item" href="#">Загрузить новый документ</a>
+                            <a class="dropdown-item" href="#">Управление доступом</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <button class="btn btn-outline-light ml-3 justify-content-end" onclick="logout()">
+            Выйти
+        </button>
+    </div>
+</nav>
+
+<!-- Рабочее пространство -->
+<div class="container mt-4">
+    <!-- Заголовок секции -->
+    <h3 class="mb-3">Сохраненные документы</h3>
+    <!-- Белый блок с grid -->
+    <div class="workspace p-4 bg-white">
+        <table class="table table-bordered table-hover">
+            <thead class="thead-dark">
+            <tr>
+                <!-- Колонки соответствуют атрибутам DocumentDto -->
+                <th>Название</th>
+                <th>Описание</th>
+                <th>Владелец</th>
+                <th>Имя файла</th>
+                <th>Создан</th>
+                <th>Общий доступ</th>
+                <th>Изменил</th>
+                <th>Изменен</th>
+                <th>Дополнительно</th>
+            </tr>
+            </thead>
+            <tbody id="documentGrid">
+            <!-- Вставка данных из backend -->
+            </tbody>
+        </table>
+        <!-- Кнопки управления -->
+        <div class="d-flex justify-content-start">
+            <button class="btn btn-primary btn-custom" id="loadMoreButton" onclick="loadMore()">Загрузить еще / Обновить</button>
+            <button class="btn btn-secondary btn-custom" id="sortButton" onclick="toggleSortMenu()">Сортировка</button>
+            <button class="btn btn-info btn-custom" id="searchOpen" onclick="toggleSearchMenu()">Поиск</button>
+        </div>
+    </div>
+</div>
+
+<!-- Меню сортировки -->
+<div id="sortMenu" class="container mt-3" style="display: none;">
+    <form id="sortForm" class="form-inline">
+        <label class="mr-2">Сортировать по:</label>
+        <select class="form-control mr-2" id="sortBy">
+            <option value="title">Название</option>
+            <option value="description">Описание</option>
+            <option value="date" selected>Дата создания</option>
+            <option value="ownerName">Загрузил</option>
+        </select>
+        <label class="mr-2">Порядок:</label>
+        <select class="form-control mr-2" id="order">
+            <option value="asc">По возрастанию</option>
+            <option value="desc" selected>По убыванию</option>
+        </select>
+        <label class="mr-2">Количество:</label>
+        <input type="number" class="form-control mr-2" id="size" value="10" min="1">
+        <button class="btn btn-success" type="button" onclick="applySort()">Применить</button>
+    </form>
+</div>
+
+<!-- Меню поиска -->
+<div id="searchMenu" class="container mt-3" style="display: none;">
+    <form id="searchForm">
+        <div class="form-group">
+            <label for="searchPattern">Шаблон:</label>
+            <input type="text" class="form-control" id="searchPattern" placeholder="Введите текст для поиска в названии или описании документа">
+        </div>
+        <div class="form-group">
+            <label for="dateFrom">В период с:</label>
+            <input type="date" class="form-control" id="dateFrom">
+        </div>
+        <div class="form-group">
+            <label for="dateTo">по:</label>
+            <input type="date" class="form-control" id="dateTo">
+        </div>
+        <div class="d-flex justify-content-start">
+            <button class="btn btn-primary btn-custom" id="searchButton" type="button" onclick="search()">Поиск / Поиск далее</button>
+        </div>
+    </form>
+</div>
+
+<div id="viewerSpace" class="mt-4" style="display: none;">
+    <button class="btn btn-secondary mb-3" id="backButton" onclick="closeViewer()" style="margin-left: 100px;">
+        Вернуться
+    </button>
+    <embed id="documentViewer" type="application/pdf" style="display: none; width: 100%; height: 80vh;" />
+    <div id="docxViewer" class="border p-3 bg-light"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.1/mammoth.browser.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/owned.js"></script>
+</body>
+</html>

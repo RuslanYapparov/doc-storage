@@ -61,18 +61,6 @@ public class FileManagerImpl implements FileManager {
     }
 
     @Override
-    public InputStream getDocumentInputStream(Path docPath) throws IOException {
-        log.debug("Начало операции получения Input-потока данных файла документа по пути '{}'.", docPath);
-        if (docPath == null || Files.notExists(docPath)) {
-            throw new IllegalStateException("В ходе выполнения операции произошла ошибка: " +
-                    "не был сохранен путь к файлу, либо файл документа не найден.");
-        }
-        InputStream docInputStream = Files.newInputStream(docPath, StandardOpenOption.READ);
-        log.debug("Input-поток данных файла документа успешно получен.");
-        return docInputStream;
-    }
-
-    @Override
     public void updateFile(MultipartFile file, Path docPath) throws IOException {
         String fileName = file.getOriginalFilename();
         if (fileName == null || fileName.isBlank() || !docPath.toString().contains(fileName)) {

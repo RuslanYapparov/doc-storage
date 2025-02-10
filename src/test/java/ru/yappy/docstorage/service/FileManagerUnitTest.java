@@ -85,31 +85,6 @@ public class FileManagerUnitTest {
     }
 
     @Test
-    void getDocumentInputStream_whenGetCorrectDocPath_thenReturnCorrectInputStream() throws IOException {
-        Path path = Paths.get("src/test/resources/MockFile");
-        InputStream inputStream = fileManager.getDocumentInputStream(path);
-
-        assertThat(inputStream).isNotNull();
-        assertThat(new String(inputStream.readAllBytes())).isEqualTo("Hi!");
-    }
-
-    @Test
-    void getDocumentInputStream_whenGetNullOrIncorrectDocPath_thenThrowIllegalStateException() {
-        String exceptionMessage = "В ходе выполнения операции произошла ошибка: " +
-                "не был сохранен путь к файлу, либо файл документа не найден.";
-
-        IllegalStateException exception = assertThrows(IllegalStateException.class,
-                () -> fileManager.getDocumentInputStream(null));
-        assertThat(exception.getMessage()).isEqualTo(exceptionMessage);
-
-        Path incorrectPath = Paths.get("бефстроганов");
-
-        exception = assertThrows(IllegalStateException.class,
-                () -> fileManager.getDocumentInputStream(incorrectPath));
-        assertThat(exception.getMessage()).isEqualTo(exceptionMessage);
-    }
-
-    @Test
     void updateFile_whenGetCorrectMultipartFileAndDocPath_thenUpdatesFileInDirectory()
         throws IOException {
         Path path = Paths.get("src/test/resources/MockFile");

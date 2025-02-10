@@ -58,13 +58,13 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public Resource getDocumentResourceById(Long id) throws IOException {
+    public Resource getDocumentResourceById(Long id) {
         User user = (User) userService.getAuthenticatedUser();
         log.debug("Начало операции получения файла документа из хранилища для пользователя '{}'", user.getUsername());
         Document document =
                 docUserAccessService.getCheckedDocumentForOperations(AccessType.READ_ONLY, id, user.getUsername());
         Path docPath = Paths.get(document.getFilePath());
-        InputStreamResource docResource = new InputStreamResource(fileManager.getDocumentInputStream(docPath));
+        PathResource docResource = new PathResource(docPath);
         log.debug("Данные о документе найдены в базе, файл документа подготовлен для отправки.");
         return docResource;
     }
