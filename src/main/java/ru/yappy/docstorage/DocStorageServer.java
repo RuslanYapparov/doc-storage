@@ -5,6 +5,7 @@ import org.apache.catalina.*;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.tomcat.util.descriptor.web.*;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.DispatcherServlet;
 
@@ -21,6 +22,8 @@ public class DocStorageServer {
         Tomcat tomcat = new Tomcat();
         tomcat.getConnector().setPort(PORT);
         tomcat.getConnector().setURIEncoding("UTF-8");
+        tomcat.getConnector().setProperty("relaxedQueryChars", "[]{}|");
+        tomcat.getConnector().setProperty("useBodyEncodingForURI", "true");
         Context tomcatContext = tomcat.addContext("", new File(".").getAbsolutePath());
 
         AnnotationConfigWebApplicationContext applicationContext =
@@ -30,6 +33,7 @@ public class DocStorageServer {
         applicationContext.refresh();
 
         DispatcherServlet dispatcherServlet = new DispatcherServlet(applicationContext);
+        dispatcherServlet.setDispatchOptionsRequest(true);
         Wrapper dispatcherWrapper =
                 Tomcat.addServlet(tomcatContext, "DocStorageDispatcherServlet", dispatcherServlet);
         dispatcherWrapper.addMapping("/");
@@ -37,15 +41,7 @@ public class DocStorageServer {
         dispatcherWrapper.setMultipartConfigElement(new MultipartConfigElement(TMP_FOLDER, MAX_UPLOAD_SIZE,
                 MAX_UPLOAD_SIZE * 2L, MAX_UPLOAD_SIZE));
 
-        FilterDef filterDef = new FilterDef();
-        filterDef.setFilterName("springSecurityFilterChain");
-        filterDef.setFilterClass(DelegatingFilterProxy.class.getName());
-        tomcatContext.addFilterDef(filterDef);
-
-        FilterMap filterMap = new FilterMap();
-        filterMap.setFilterName("springSecurityFilterChain");
-        filterMap.addURLPattern("/*");
-        tomcatContext.addFilterMap(filterMap);
+        addFilterDefs(tomcatContext);
 
         tomcat.start();
     }
@@ -55,6 +51,30 @@ public class DocStorageServer {
         if (!Files.exists(directoryPath.toAbsolutePath())) {
             Files.createDirectory(directoryPath.toAbsolutePath());
         }
+    }
+
+    private static void addFilterDefs(Context tomcatContext) {
+        FilterDef characterEncodingFilterDef = new FilterDef();
+        characterEncodingFilterDef.setFilterName("characterEncodingFilter");
+        characterEncodingFilterDef.setFilterClass(CharacterEncodingFilter.class.getName());
+        characterEncodingFilterDef.addInitParameter("encoding", "UTF-8");
+        characterEncodingFilterDef.addInitParameter("forceEncoding", "true");
+        tomcatContext.addFilterDef(characterEncodingFilterDef);
+
+        FilterMap characterEncodingFilterMap = new FilterMap();
+        characterEncodingFilterMap.setFilterName("characterEncodingFilter");
+        characterEncodingFilterMap.addURLPattern("/*");
+        tomcatContext.addFilterMap(characterEncodingFilterMap);
+
+        FilterDef securityFilterDef = new FilterDef();
+        securityFilterDef.setFilterName("springSecurityFilterChain");
+        securityFilterDef.setFilterClass(DelegatingFilterProxy.class.getName());
+        tomcatContext.addFilterDef(securityFilterDef);
+
+        FilterMap securityFilterMap = new FilterMap();
+        securityFilterMap.setFilterName("springSecurityFilterChain");
+        securityFilterMap.addURLPattern("/*");
+        tomcatContext.addFilterMap(securityFilterMap);
     }
 
 }

@@ -1,0 +1,40 @@
+<div id="sortMenu" class="container mt-3" style="display: none;">
+    <form id="sortForm" class="row">
+        <div class="col-md-4 mb-3 d-flex flex-column">
+            <div class="form-check mb-3" style="font-size: 1.1rem; margin-top: 40px;">
+                <input class="form-check-input" type="checkbox" id="withOwned" name="withOwned" style="width: 1.5rem; height: 1.5rem;">
+                <label class="form-check-label ml-2" for="withOwned" style="vertical-align: middle;">Включить сохраненные</label>
+            </div>
+            <div class="form-check" style="font-size: 1.1rem; margin-top: 15px;">
+                <input class="form-check-input" type="checkbox" id="withSharedForAll" name="withSharedForAll" checked style="width: 1.5rem; height: 1.5rem;">
+                <label class="form-check-label ml-2" for="withSharedForAll" style="vertical-align: middle;">Включить общедоступные</label>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="mr-2" for="sortBy">Сортировать по:</label>
+            <select class="form-control mb-3" id="sortBy">
+                <option value="title">Название</option>
+                <option value="description">Описание</option>
+                <option value="date" selected>Дата создания</option>
+                <option value="ownerName">Загрузил</option>
+            </select>
+
+            <label class="mr-2" for="order">Порядок:</label>
+            <select class="form-control" id="order">
+                <option value="asc">По возрастанию</option>
+                <option value="desc" selected>По убыванию</option>
+            </select>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <label class="mr-2" for="size">Количество:</label>
+            <input type="number" class="form-control mb-3" id="size" value="10" min="1">
+
+            <button class="btn btn-success w-100"
+                    type="button"
+                    onclick="applySort()"
+                    style="position: absolute; bottom: 0; max-width: 350px;">Применить</button>
+        </div>
+    </form>
+</div>

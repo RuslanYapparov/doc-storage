@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление доступом</title>
+    <script src="js/include-html.js" defer></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body class="bg-light">
+<div data-include-html="element/navbar.html"></div>
+
+<div class="alert alert-success" id="successNotification" style="display: none; position: fixed; top: 10px; right: 10px; z-index: 1000;">
+    Операция выполнена успешно!
+</div>
+
+<h3 class="page-header mt-4 text-center">Управление доступом</h3>
+
+<div data-include-html="element/document-grid.html"></div>
+
+<div data-include-html="element/saved-sort-menu.html"></div>
+
+<div data-include-html="element/search-menu.html"></div>
+
+<div class="access-workspace p-4 bg-white" style="display: none;">
+    <h4>Управление доступом для документа</h4>
+    <button class="btn btn-secondary mt-4" onclick="goBack()">Вернуться назад</button>
+    <table class="table table-bordered mt-3">
+        <tbody>
+        <tr>
+            <th>Название</th>
+            <td id="accessDocTitle"></td>
+        </tr>
+        <tr>
+            <th>Описание</th>
+            <td id="accessDocDescription"></td>
+        </tr>
+        <tr>
+            <th>Владелец</th>
+            <td id="accessDocOwner"></td>
+        </tr>
+        <tr>
+            <th>Имя файла</th>
+            <td id="accessDocFile"></td>
+        </tr>
+        <tr>
+            <th>Создан</th>
+            <td id="accessDocCreated"></td>
+        </tr>
+        <tr>
+            <th>Изменен</th>
+            <td id="accessDocUpdated"></td>
+        </tr>
+        <tr>
+            <th>Изменил</th>
+            <td id="accessDocUpdatedBy"></td>
+        </tr>
+        <tr>
+            <th>Общий доступ</th>
+            <td id="accessDocAccessType"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="btn-group mt-4">
+        <button class="btn btn-success" id="btnGeneralAccess" onclick="toggleGeneralAccess()">Общий доступ</button>
+        <button class="btn btn-warning" id="btnPrivateAccess" onclick="togglePrivateAccess()">Личный доступ</button>
+        <button class="btn btn-info" id="btnUsersWithAccess" onclick="toggleUsersWithAccess()">Пользователи с личным доступом</button>
+    </div>
+
+    <div class="error-message text-danger" id="errorMessage" style="display: none;"></div>
+
+    <div class="access-options mt-4">
+        <!-- Эта область обновляется в зависимости от выбранной кнопки -->
+    </div>
+</div>
+
+<div style="height: 150px;"></div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="js/owned.js" defer></script>
+<script src="js/access.js" defer></script>
+</body>
+
+</html>

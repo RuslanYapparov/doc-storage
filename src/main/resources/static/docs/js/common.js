@@ -1,17 +1,5 @@
 let isFirstSearch = true;
 
-document.addEventListener("DOMContentLoaded", function () {
-    const grid = document.getElementById("documentGrid");
-    loadMore(true);
-})
-
-document.getElementById("searchPattern").addEventListener("input", resetSearchFlag);
-document.getElementById("dateFrom").addEventListener("change", resetSearchFlag);
-document.getElementById("dateTo").addEventListener("change", resetSearchFlag);
-document.getElementById("sortBy").addEventListener("change", resetSearchFlag);
-document.getElementById("order").addEventListener("change", resetSearchFlag);
-document.getElementById("size").addEventListener("input", resetSearchFlag);
-
 function resetSearchFlag() {
     isFirstSearch = true;
 }

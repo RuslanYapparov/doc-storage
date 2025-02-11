@@ -15,7 +15,7 @@
     <div class="content w-100" style="max-width: 400px;">
       <div class="form-container bg-white p-4 shadow rounded">
         <h2 class="text-center mb-4">Вход в приложение</h2>
-        <form id="loginForm" action="/perform-login" method="POST" novalidate>
+        <form id="loginForm" novalidate>
           <div class="mb-3">
             <label for="username" class="form-label">Имя пользователя</label>
             <input type="text" class="form-control" id="username" name="username"
@@ -30,7 +30,9 @@
                    placeholder="Введите пароль" required>
             <div class="invalid-feedback">Пароль должен содержать только латиницу и цифры.</div>
           </div>
+
           <div id="error-messages" class="alert alert-danger d-none"></div>
+
           <button type="submit" class="btn btn-primary w-100 btn-login mt-3">Войти</button>
         </form>
         <div class="mt-4 text-center">
@@ -45,15 +47,54 @@
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const loginForm = document.getElementById("loginForm");
+    const errorMessages = document.getElementById("error-messages");
 
-    loginForm.addEventListener("submit", function (event) {
+    loginForm.addEventListener("submit", async function (event) {
+      event.preventDefault(); // Отключаем стандартное поведение формы
+
+      // Проверка валидности формы
       if (!loginForm.checkValidity()) {
-        event.preventDefault();
-        event.stopPropagation();
         loginForm.classList.add("was-validated");
+        return;
+      }
+
+      // Сбор данных формы в формате application/x-www-form-urlencoded
+      const formData = new FormData(loginForm);
+      const urlEncodedData = new URLSearchParams();
+      formData.forEach((value, key) => {
+        urlEncodedData.append(key, value);
+      });
+
+      try {
+        // Отправка данных на сервер
+        const response = await fetch("/perform-login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: urlEncodedData.toString()
+        });
+
+        if (response.ok) {
+          // Успешный вход - перенаправление на страницу
+          window.location.href = "/docs/owned.html";
+        } else {
+          // Получение JSON с ошибкой
+          const errorResponse = await response.json();
+          displayError(errorResponse.errorMessage || "Ошибка при входе.");
+        }
+      } catch (error) {
+        displayError("Произошла ошибка подключения.");
       }
     });
+
+    function displayError(message) {
+      // Показать сообщение об ошибке
+      errorMessages.textContent = message;
+      errorMessages.classList.remove("d-none");
+    }
   });
+
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

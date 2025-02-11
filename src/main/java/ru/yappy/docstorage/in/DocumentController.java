@@ -3,6 +3,7 @@ package ru.yappy.docstorage.in;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.*;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +28,7 @@ public class DocumentController {
     private final DocumentService documentService;
     private final UserService userService;
 
+    @Autowired
     public DocumentController(DocumentService documentService, UserService userService) {
         this.documentService = documentService;
         this.userService = userService;

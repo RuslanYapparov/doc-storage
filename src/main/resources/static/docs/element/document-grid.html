@@ -1,0 +1,26 @@
+<div class="container-fluid mt-4">
+    <div class="workspace p-4 bg-white">
+        <table class="table table-bordered table-hover">
+            <thead class="thead-dark">
+            <tr>
+                <th>Название</th>
+                <th>Описание</th>
+                <th>Владелец</th>
+                <th>Имя файла</th>
+                <th>Создан</th>
+                <th>Общий доступ</th>
+                <th>Изменил</th>
+                <th>Изменен</th>
+                <th>Дополнительно</th>
+            </tr>
+            </thead>
+            <tbody id="documentGrid">
+            </tbody>
+        </table>
+        <div class="d-flex justify-content-start" style="margin-top: 10px">
+            <button class="btn btn-primary btn-custom" id="loadMoreButton" onclick="loadMore()">Загрузить еще / Обновить</button>
+            <button class="btn btn-secondary btn-custom" id="sortButton" onclick="toggleSortMenu()">Сортировка</button>
+            <button class="btn btn-info btn-custom" id="searchOpen" onclick="toggleSearchMenu()">Поиск</button>
+        </div>
+    </div>
+</div>

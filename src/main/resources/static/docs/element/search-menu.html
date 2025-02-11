@@ -1,0 +1,19 @@
+<div id="searchMenu" class="container mt-3" style="display: none;">
+    <form id="searchForm">
+        <div class="form-group">
+            <label for="searchPattern">Шаблон:</label>
+            <input type="text" class="form-control" id="searchPattern" placeholder="Введите текст для поиска в названии или описании документа">
+        </div>
+        <div class="form-group">
+            <label for="dateFrom">В период с:</label>
+            <input type="date" class="form-control" id="dateFrom">
+        </div>
+        <div class="form-group">
+            <label for="dateTo">по:</label>
+            <input type="date" class="form-control" id="dateTo">
+        </div>
+        <div class="d-flex justify-content-start">
+            <button class="btn btn-primary btn-custom" id="searchButton" type="button" onclick="search()">Поиск / Поиск далее</button>
+        </div>
+    </form>
+</div>

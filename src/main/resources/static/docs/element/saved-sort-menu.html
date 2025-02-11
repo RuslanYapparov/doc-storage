@@ -1,0 +1,22 @@
+<div id="sortMenu" class="container mt-3" style="display: none;">
+    <form id="sortForm" class="form-inline">
+        <label class="mr-2" for="sortBy">Сортировать по:</label>
+        <select class="form-control mr-2" id="sortBy">
+            <option value="title">Название</option>
+            <option value="description">Описание</option>
+            <option value="date" selected>Дата создания</option>
+            <option value="ownerName">Загрузил</option>
+        </select>
+
+        <label class="mr-2" for="order">Порядок:</label>
+        <select class="form-control mr-2" id="order">
+            <option value="asc">По возрастанию</option>
+            <option value="desc" selected>По убыванию</option>
+        </select>
+
+        <label class="mr-2" for="size">Количество:</label>
+        <input type="number" class="form-control mr-2" id="size" value="10" min="1">
+
+        <button class="btn btn-success" type="button" onclick="applySort()">Применить</button>
+    </form>
+</div>
