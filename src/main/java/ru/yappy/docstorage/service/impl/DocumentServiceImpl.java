@@ -49,7 +49,14 @@ public class DocumentServiceImpl implements DocumentService {
         document.setOwner(owner);
         document.setFilePath(filePath.toString());
         document.setCreatedAt(LocalDate.now());
-        document = documentRepository.save(document);
+        try {
+            document = documentRepository.save(document);
+        } catch (Exception exception) {
+            log.error("Ошибка сохранения данных о документе в базе: ({} {}). файл будет удален из хранилища.",
+                    exception.getClass().getSimpleName(), exception.getMessage());
+            fileManager.deleteFile(filePath);
+            throw exception;
+        }
         document.setFilePath(filePath.getFileName().toString());
         docUserAccessService.saveAccessToDocumentForOwner(document.getId(), owner.getUsername());
         DocumentDto documentDto = DocumentMapper.toDto(document);

@@ -6,6 +6,8 @@ dependency-reduced-pom.xml
 *.log
 **/filestorage/**
 **/tmp/**
+docker-compose.yml
+flyway.conf
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

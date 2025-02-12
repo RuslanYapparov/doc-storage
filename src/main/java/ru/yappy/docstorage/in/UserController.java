@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import ru.yappy.docstorage.model.dto.*;
 import ru.yappy.docstorage.service.ConfirmationService;
 import ru.yappy.docstorage.service.UserService;
+import ru.yappy.docstorage.util.ExploitValidator;
 
 @Slf4j
 @Controller
@@ -29,6 +30,8 @@ public class UserController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public UserDto saveNewUser(@RequestBody @Valid NewUserDto newUserDto) {
+        ExploitValidator.validateStrings(newUserDto.username(), newUserDto.email(), newUserDto.firstName(),
+                newUserDto.lastName());
         log.info("Поступил запрос на сохранение данных нового пользователя {}", newUserDto);
         UserDto userDto = userService.saveNewUser(newUserDto);
         log.info("Пользователь {} успешно сохранен", newUserDto);
@@ -37,6 +40,7 @@ public class UserController {
 
     @GetMapping(value = "/confirm", produces = MediaType.APPLICATION_JSON_VALUE)
     public String confirmUser(@RequestParam(name = "token") @Valid @NotBlank String token) {
+        ExploitValidator.validateStrings(token);
         log.info("Поступил запрос на подтверждение учетной записи пользователя по токену {}", token);
         UserDto userDto = confirmationService.confirmEmailAndEnableUser(token);
         log.info("Учетная запись пользователя '{}' успешно подтверждена", userDto.username());
