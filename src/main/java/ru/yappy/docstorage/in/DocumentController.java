@@ -15,6 +15,7 @@ import ru.yappy.docstorage.model.*;
 import ru.yappy.docstorage.model.dto.DocumentDto;
 import ru.yappy.docstorage.model.paramholder.*;
 import ru.yappy.docstorage.service.*;
+import ru.yappy.docstorage.util.ExploitValidator;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,6 +40,7 @@ public class DocumentController {
     public DocumentDto uploadNewDocument(@RequestParam("file") MultipartFile file,
                                          @RequestParam("title") @NotBlank String title,
                                          @RequestParam("description") @NotBlank String description) throws IOException {
+        ExploitValidator.validateStrings(title, description);
         User user = (User) userService.getAuthenticatedUser();
         String subDescription = (description.length() < 20) ? description : description.substring(0, 20) + "(...)";
         log.info("Получен запрос от пользователя '{}' на сохранение документа с названием '{}' и описанием '{}'",
@@ -125,6 +127,7 @@ public class DocumentController {
             @RequestParam(name = "order", defaultValue = "desc") @NotBlank String order,
             @RequestParam(name = "from", defaultValue = "0") @Min(0) int from,
             @RequestParam(name = "size", defaultValue = "10") @Min(1) int size) {
+        ExploitValidator.validateStrings(searchFor);
         SearchInDocsParamHolder searchInDocsParamHolder = new SearchInDocsParamHolder(
                 searchFor,
                 since,
@@ -153,6 +156,7 @@ public class DocumentController {
             @RequestParam(name = "size", defaultValue = "10") @Min(1) int size,
             @RequestParam(name = "withOwned", defaultValue = "true") boolean withOwned,
             @RequestParam(name = "withSharedForAll", defaultValue = "true") boolean withSharedForAll) {
+        ExploitValidator.validateStrings(searchFor);
         SearchInDocsParamHolder searchInDocsParamHolder = new SearchInDocsParamHolder(
                 searchFor,
                 since,
@@ -179,6 +183,7 @@ public class DocumentController {
                                       @RequestParam(name = "title", required = false) String title,
                                       @RequestParam(name = "description", required = false) String description)
             throws IOException {
+        ExploitValidator.validateStrings(title, description);
         User user = (User) userService.getAuthenticatedUser();
         String subDescription = (description.length() < 20) ? description : description.substring(0, 20) + "(...)";
         log.info("Получен запрос от пользователя '{}' на обновление документа с id={}. " +

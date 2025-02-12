@@ -14,7 +14,7 @@ import java.nio.file.*;
 
 public class DocStorageServer {
     private static final int PORT = 8080;
-    private static final String TMP_FOLDER = "C:/Projects/doc-storage/src/main/resources/tmp";
+    private static final String TMP_FOLDER = "src/main/resources/tmp";
     private static final int MAX_UPLOAD_SIZE = 5 * 1024 * 1024;
 
     public static void main(String[] args) throws LifecycleException, IOException {

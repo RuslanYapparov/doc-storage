@@ -9,6 +9,7 @@ import ru.yappy.docstorage.model.AccessType;
 import ru.yappy.docstorage.model.User;
 import ru.yappy.docstorage.model.dto.DocUserAccessDto;
 import ru.yappy.docstorage.service.*;
+import ru.yappy.docstorage.util.ExploitValidator;
 
 @Slf4j
 @RestController
@@ -26,6 +27,7 @@ public class DocUserAccessController {
 
     @PutMapping(consumes = "application/json", produces = "application/json")
     public DocUserAccessDto saveDocUserAccess(@RequestBody @Valid DocUserAccessDto docUserAccessDto) {
+        ExploitValidator.validateStrings(docUserAccessDto.username());
         User user = (User) userService.getAuthenticatedUser();
         log.info("Поступил запрос от пользователя '{}' на предоставление доступа к документу {}.", user.getUsername(),
                 docUserAccessDto);
@@ -51,6 +53,7 @@ public class DocUserAccessController {
     @DeleteMapping
     public void deleteDocUserAccess(@RequestParam(name = "docId") @Valid @Min(1) Long docId,
                                     @RequestParam(name = "username") @Valid @NotBlank String username) {
+        ExploitValidator.validateStrings(username);
         User user = (User) userService.getAuthenticatedUser();
         log.info("Поступил запрос от пользователя '{}' на отзыв доступа к документу с id={}  пользователя '{}'.",
                 user.getUsername(), docId, username);
