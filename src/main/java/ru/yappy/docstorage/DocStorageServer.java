@@ -5,8 +5,7 @@ import org.apache.catalina.*;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.tomcat.util.descriptor.web.*;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-import org.springframework.web.filter.CharacterEncodingFilter;
-import org.springframework.web.filter.DelegatingFilterProxy;
+import org.springframework.web.filter.*;
 import org.springframework.web.servlet.DispatcherServlet;
 
 import java.io.*;
